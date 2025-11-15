@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include <alloca.h>
+#include <malloc.h>
 #include "math/Pluecker.h"
 
 #include "geometry/Surface.h"

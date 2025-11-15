@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "Platform.h"
-#include <alloca.h>
+#include <malloc.h>
 #include <cstdio>
 #include "geometry/TraceModel.h"
 

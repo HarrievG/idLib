@@ -66,11 +66,12 @@ public:
 	void			Clear( void );									// inside out bounds
 	void			Zero( void );									// single point at origin
 
-	idVec3			GetCenter( void ) const;						// returns center of bounds
-	float			GetRadius( void ) const;						// returns the radius relative to the bounds origin
-	float			GetRadius( const idVec3 &center ) const;		// returns the radius relative to the given center
-	float			GetVolume( void ) const;						// returns the volume of the bounds
-	bool			IsCleared( void ) const;						// returns true if bounds are inside out
+	float			GetMaxExtent() const;
+	idVec3			GetCenter() const;						// returns center of bounds
+	float			GetRadius() const;						// returns the radius relative to the bounds origin
+	float			GetRadius( const idVec3& center ) const;		// returns the radius relative to the given center
+	float			GetVolume() const;						// returns the volume of the bounds
+	bool			IsCleared() const;						// returns true if bounds are inside out
 
 	bool			AddPoint( const idVec3 &v );					// add the point, returns true if the bounds expanded
 	bool			AddBounds( const idBounds &a );					// add the bounds, returns true if the bounds expanded
@@ -83,8 +84,10 @@ public:
 	idBounds		Rotate( const idMat3 &rotation ) const;			// return rotated bounds
 	idBounds &		RotateSelf( const idMat3 &rotation );			// rotate this bounds
 
-	float			PlaneDistance( const idPlane &plane ) const;
-	int				PlaneSide( const idPlane &plane, const float epsilon = ON_EPSILON ) const;
+	float			PlaneDistance( const idPlane& plane ) const;
+	int				PlaneSide( const idPlane& plane, const float epsilon = ON_EPSILON ) const;
+	idVec3			GetSize( void ) const;							//Tels: Get the size of the bounds, that is b1 - b0
+	bool			IsBackwards() const;							//stgatilov: checks if any size is negative
 
 	bool			ContainsPoint( const idVec3 &p ) const;			// includes touching
 	bool			IntersectsBounds( const idBounds &a ) const;	// includes touching
@@ -108,6 +111,11 @@ public:
 
 	void			AxisProjection( const idVec3 &dir, float &min, float &max ) const;
 	void			AxisProjection( const idVec3 &origin, const idMat3 &axis, const idVec3 &dir, float &min, float &max ) const;
+
+	int				GetDimension() const;
+
+	const float* 	ToFloatPtr() const;
+	float* 			ToFloatPtr();
 
 private:
 	idVec3			b[2];
@@ -354,9 +362,24 @@ ID_INLINE idBounds &idBounds::RotateSelf( const idMat3 &rotation ) {
 	return *this;
 }
 
-ID_INLINE bool idBounds::ContainsPoint( const idVec3 &p ) const {
-	if ( p[0] < b[0][0] || p[1] < b[0][1] || p[2] < b[0][2]
-		|| p[0] > b[1][0] || p[1] > b[1][1] || p[2] > b[1][2] ) {
+/**
+* Tels: Get the size of the bounds, that is b1 - b0
+*/
+ID_INLINE idVec3 idBounds::GetSize( void ) const
+{
+	return idVec3( b[1].x - b[0].x, b[1].y - b[0].y, b[1].z - b[0].z );
+}
+
+ID_INLINE bool idBounds::IsBackwards( void ) const
+{
+	return b[1].x < b[0].x || b[1].y < b[0].y || b[1].z < b[0].z;
+}
+
+ID_INLINE bool idBounds::ContainsPoint( const idVec3& p ) const
+{
+	if( p[0] < b[0][0] || p[1] < b[0][1] || p[2] < b[0][2]
+			|| p[0] > b[1][0] || p[1] > b[1][1] || p[2] > b[1][2] )
+	{
 		return false;
 	}
 	return true;
@@ -408,6 +431,21 @@ ID_INLINE void idBounds::AxisProjection( const idVec3 &origin, const idMat3 &axi
 
 	min = d1 - d2;
 	max = d1 + d2;
+}
+
+ID_INLINE int idBounds::GetDimension() const
+{
+	return 6;
+}
+
+ID_INLINE const float* idBounds::ToFloatPtr() const
+{
+	return &b[0].x;
+}
+
+ID_INLINE float* idBounds::ToFloatPtr()
+{
+	return &b[0].x;
 }
 
 #endif /* !__BV_BOUNDS_H__ */

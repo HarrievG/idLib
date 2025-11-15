@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-#include <alloca.h>
+#include <malloc.h>
 #include "geometry/Surface_Polytope.h"
 
 #define POLYTOPE_VERTEX_EPSILON		0.1f

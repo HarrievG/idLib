@@ -68,6 +68,7 @@ void AssertFailed( const char *file, int line, const char *expression );
 #else
 #define verify( x )		( ( x ) ? true : false )
 #endif
+
 class idException {
 public:
 	char error[MAX_STRING_CHARS];
@@ -75,8 +76,5 @@ public:
 	idException( const char *text = "" ) { strcpy( error, text ); }
 };
 
-// move from Math.h to keep gcc happy
-template<class T> ID_INLINE T	Max( T x, T y ) { return ( x > y ) ? x : y; }
-template<class T> ID_INLINE T	Min( T x, T y ) { return ( x < y ) ? x : y; }
 
 #endif	/* !__LIB_H__ */

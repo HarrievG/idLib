@@ -466,10 +466,19 @@ void idSurface_Patch::SampleSinglePatchPoint( const idDrawVert ctrl[3][3], float
 
 		if ( axis < 3 ) {
 			out->xyz[axis] = qA * v * v + qB * v + qC;
-		} else if ( axis < 6 ) {
-			out->normal[axis-3] = qA * v * v + qB * v + qC;
-		} else {
-			out->st[axis-6] = qA * v * v + qB * v + qC;
+		}
+		else if( axis < 6 )
+		{
+			idVec3 tempNormal = out->GetNormal();
+			tempNormal[axis - 3] = qA * v * v + qB * v + qC;
+			out->SetNormal( tempNormal );
+			//out->normal[axis-3] = qA * v * v + qB * v + qC;
+		}
+		else
+		{
+			idVec2 tempST = out->GetTexCoord();
+			tempST[axis - 6] = qA * v * v + qB * v + qC;
+			out->SetTexCoord( tempST );
 		}
 	}
 }
@@ -687,12 +696,15 @@ void idSurface_Patch::Subdivide( float maxHorizontalError, float maxVerticalErro
 	RemoveLinearColumnsRows();
 
 	Collapse();
-	idVec3 tempNormal;
+
 	// normalize all the lerped normals
-	if ( genNormals ) {
-		for ( i = 0; i < width * height; i++ ) {
-			tempNormal = verts[i].GetNormal( );
-			tempNormal.Normalize( );
+	if( genNormals )
+	{
+		idVec3 tempNormal;
+		for( i = 0; i < width * height; i++ )
+		{
+			tempNormal = verts[i].GetNormal();
+			tempNormal.Normalize();
 			verts[i].SetNormal( tempNormal );
 		}
 	}

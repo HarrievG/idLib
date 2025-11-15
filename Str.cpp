@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <cstdlib>
 
 #include "Str.h"
+#include "math/Math.h"
 
 struct Vec4 {
 	float x, y, z, w;

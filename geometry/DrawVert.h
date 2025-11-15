@@ -150,6 +150,8 @@ public:
 	void				SetTexCoordS( float s );
 	void				SetTexCoordT( float t );
 	const idVec2		GetTexCoord() const;
+	const float			GetTexCoordS() const;
+	const float			GetTexCoordT() const;
 	const halfFloat_t	GetTexCoordNativeS() const;
 	const halfFloat_t	GetTexCoordNativeT() const;
 
@@ -551,6 +553,26 @@ idDrawVert::GetTexCoord
 */
 ID_INLINE const idVec2	idDrawVert::GetTexCoord() const {
 	return idVec2( F16toF32( st[0] ), F16toF32( st[1] ) );
+}
+
+/*
+========================
+idDrawVert::GetTexCoordT
+========================
+*/
+ID_INLINE const float idDrawVert::GetTexCoordS() const
+{
+	return F16toF32( st[0] );
+}
+
+/*
+========================
+idDrawVert::GetTexCoordS
+========================
+*/
+ID_INLINE const float idDrawVert::GetTexCoordT() const
+{
+	return F16toF32( st[1] );
 }
 
 /*

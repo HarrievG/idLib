@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include <alloca.h>
+#include <malloc.h>
 #include <cstdio>
 #include "math/Pluecker.h"
 #include "Platform.h"

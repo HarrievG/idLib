@@ -47,6 +47,10 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+// move from Math.h to keep gcc happy
+template<class T> ID_INLINE T	Max( T x, T y ) { return ( x > y ) ? x : y; }
+template<class T> ID_INLINE T	Min( T x, T y ) { return ( x < y ) ? x : y; }
+
 #ifdef INFINITY
 #undef INFINITY
 #endif
@@ -923,14 +927,14 @@ ID_INLINE int idMath::ClampInt( int min, int max, int value ) {
 	return value;
 }
 
-ID_INLINE float idMath::ClampFloat( float min, float max, float value ) {
-	if ( value < min ) {
-		return min;
-	}
-	if ( value > max ) {
-		return max;
-	}
-	return value;
+/*
+========================
+idMath::ClampFloat
+========================
+*/
+ID_INLINE float idMath::ClampFloat( float min, float max, float value )
+{
+	return Max( min, Min( max, value ) );
 }
 
 ID_INLINE float idMath::AngleNormalize360( float angle ) {
@@ -961,6 +965,20 @@ ID_INLINE int idMath::FloatHash( const float *array, const int numFloats ) {
 		hash ^= ptr[i];
 	}
 	return hash;
+}
+
+template< typename T >
+ID_INLINE
+T Lerp( const T from, const T to, float f )
+{
+	return from + ( ( to - from ) * f );
+}
+
+template<>
+ID_INLINE
+int Lerp( const int from, const int to, float f )
+{
+	return idMath::Ftoi( ( float ) from + ( ( ( float ) to - ( float ) from ) * f ) );
 }
 
 #endif /* !__MATH_MATH_H__ */

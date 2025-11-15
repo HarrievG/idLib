@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MATH_VECTOR_H__
 #define __MATH_VECTOR_H__
 
-#include <alloca.h>
+#include <malloc.h>
 #include <cassert>
 #include <cmath>
 #include "math/Math.h"
@@ -1478,7 +1478,7 @@ ID_INLINE float *idVec6::ToFloatPtr( void ) {
 #define VECX_MAX_TEMP		1024
 #define VECX_QUAD( x )		( ( ( ( x ) + 3 ) & ~3 ) * sizeof( float ) )
 #define VECX_CLEAREND()		int s = size; while( s < ( ( s + 3) & ~3 ) ) { p[s++] = 0.0f; }
-#define VECX_ALLOCA( n )	( (float *) alloca( VECX_QUAD( n ) ) )
+#define VECX_ALLOCA( n )	( (float *)  _aligned_malloc(( VECX_QUAD( n ) ),16) )
 #define VECX_SIMD
 
 class idVecX {
