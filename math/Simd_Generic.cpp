@@ -1801,7 +1801,7 @@ void VPCALL idSIMDProcessor_Generic::MatX_LowerTriangularSolve( const idMatX &L,
 	lptr = L[skip];
 
 	int i, j;
-	register double s0, s1, s2, s3;
+	double s0, s1, s2, s3;
 
 	for ( i = skip; i < n; i++ ) {
 		s0 = lptr[0] * x[0];
@@ -1927,7 +1927,7 @@ void VPCALL idSIMDProcessor_Generic::MatX_LowerTriangularSolveTranspose( const i
 	}
 
 	int i, j;
-	register double s0, s1, s2, s3;
+	double s0, s1, s2, s3;
 	float *xptr;
 
 	lptr = L.ToFloatPtr() + n * nc + n - 4;
