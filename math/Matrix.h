@@ -824,6 +824,14 @@ public:
 	bool			InverseFastSelf( void );	// returns false if determinant is zero
 	idMat4			TransposeMultiply( const idMat4 &b ) const;
 
+
+	static idMat4	CreateRotationZ( float radians );
+	static idMat4	CreateTranslation( float x, float y, float z );
+	static idMat4	CreateOrthographicOffCenter( float left, float right, float bottom, float top, float zNearPlane, float zFarPlane );
+	static idMat4	CreatePerspectiveFieldOfView( float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance );
+	static idMat4	CreateLookAt( const idVec3 &cameraPosition, const idVec3 &cameraTarget, const idVec3 &cameraUpVector );
+
+
 	int				GetDimension( void ) const;
 
 	const float *	ToFloatPtr( void ) const;
