@@ -1478,7 +1478,12 @@ ID_INLINE float *idVec6::ToFloatPtr( void ) {
 #define VECX_MAX_TEMP		1024
 #define VECX_QUAD( x )		( ( ( ( x ) + 3 ) & ~3 ) * sizeof( float ) )
 #define VECX_CLEAREND()		int s = size; while( s < ( ( s + 3) & ~3 ) ) { p[s++] = 0.0f; }
+#ifdef _WIN32
 #define VECX_ALLOCA( n )	( (float *)  _aligned_malloc(( VECX_QUAD( n ) ),16) )
+#else
+#include <malloc.h>
+#define VECX_ALLOCA( n )	( (float *)  aligned_alloc(16, ( VECX_QUAD( n ) )) )
+#endif
 #define VECX_SIMD
 
 class idVecX {

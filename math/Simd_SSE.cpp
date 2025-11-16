@@ -36,13 +36,13 @@ If you have questions concerning this license or the applicable additional terms
 //                                                        E
 //===============================================================
 
-#define DRAWVERT_SIZE				60
+//#define DRAWVERT_SIZE							60
 #define DRAWVERT_XYZ_OFFSET			(0*4)
 #define DRAWVERT_ST_OFFSET			(3*4)
-#define DRAWVERT_NORMAL_OFFSET		(5*4)
+//#define DRAWVERT_NORMAL_OFFSET					(5*4)
 #define DRAWVERT_TANGENT0_OFFSET	(8*4)
 #define DRAWVERT_TANGENT1_OFFSET	(11*4)
-#define DRAWVERT_COLOR_OFFSET		(14*4)
+//#define DRAWVERT_COLOR_OFFSET					(14*4)
 
 #if defined(__GNUC__) && defined(__SSE__)
 

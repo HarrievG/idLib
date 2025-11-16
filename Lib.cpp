@@ -1,3 +1,4 @@
+#include <signal.h>
 #include "Lib.h"
 #include "Str.h"
 #include "Dict.h"
@@ -47,7 +48,7 @@ RESULTS
 Reverses the byte order in each of elcount elements.
 ===================================================================== */
 ID_INLINE static void RevBytesSwap( void *bp, int elsize, int elcount ) {
-	register unsigned char *p, *q;
+	unsigned char *p, *q;
 
 	p = ( unsigned char * ) bp;
 

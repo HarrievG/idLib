@@ -30,6 +30,9 @@ message(STATUS "idlib : globbing sources")
 file(GLOB_RECURSE idlib_sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.cpp")
 list(REMOVE_ITEM idlib_sources "test.cpp")
 list(FILTER idlib_sources EXCLUDE REGEX "^out/.*")
+list(FILTER idlib_sources EXCLUDE REGEX ".*/VisualC-GDK/.*")
+list(FILTER idlib_sources EXCLUDE REGEX ".*/sdl-src/src/.*")
+list(FILTER idlib_sources EXCLUDE REGEX ".*/sdl-src/test/.*")
 message(STATUS "idlib_sources: ${idlib_sources}")
 
 file(GLOB_RECURSE idlib_headers RELATIVE ${CMAKE_SOURCE_DIR} "*.h")
@@ -45,3 +48,6 @@ target_include_directories(idlib_standalone PUBLIC
 )
 
 target_link_libraries(idlib_standalone PRIVATE SDL3::SDL3-static )
+
+add_executable(test test.cpp)
+target_link_libraries(test PRIVATE idlib_standalone SDL3::SDL3-static)

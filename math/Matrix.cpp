@@ -1053,6 +1053,75 @@ const char *idMat4::ToString( int precision ) const {
 	return "mat4";
 }
 
+/*
+=============
+idMat4::CreateRotationZ
+=============
+*/
+idMat4 idMat4::CreateRotationZ( float radians ) {
+	float s, c;
+
+	idMath::SinCos( radians, s, c );
+
+	return idMat4(	c,	-s,	0.0f, 0.0f,
+					s,	c,	0.0f, 0.0f,
+					0.0f, 0.0f, 1.0f, 0.0f,
+					0.0f, 0.0f, 0.0f, 1.0f );
+}
+
+/*
+=============
+idMat4::CreateTranslation
+=============
+*/
+idMat4 idMat4::CreateTranslation( float x, float y, float z ) {
+	return idMat4( mat3_identity, idVec3( x, y, z ) );
+}
+
+/*
+=============
+idMat4::CreateOrthographicOffCenter
+=============
+*/
+idMat4 idMat4::CreateOrthographicOffCenter( float left, float right, float bottom, float top, float zNearPlane, float zFarPlane ) {
+	return idMat4(	2.0f / ( right - left ), 0.0f, 0.0f, ( left + right ) / ( left - right ),
+					0.0f, 2.0f / ( top - bottom ), 0.0f, ( top + bottom ) / ( bottom - top ),
+					0.0f, 0.0f, 1.0f / ( zNearPlane - zFarPlane ), zNearPlane / ( zNearPlane - zFarPlane ),
+					0.0f, 0.0f, 0.0f, 1.0f );
+}
+
+/*
+=============
+idMat4::CreatePerspectiveFieldOfView
+=============
+*/
+idMat4 idMat4::CreatePerspectiveFieldOfView( float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance ) {
+	float num = 1.0f / ( idMath::Tan( fieldOfView * 0.5f ) );
+	return idMat4(	num / aspectRatio, 0.0f, 0.0f, 0.0f,
+					0.0f, num, 0.0f, 0.0f,
+					0.0f, 0.0f, farPlaneDistance / ( nearPlaneDistance - farPlaneDistance ), ( nearPlaneDistance * farPlaneDistance ) / ( nearPlaneDistance - farPlaneDistance ),
+					0.0f, 0.0f, -1.0f, 0.0f );
+}
+
+/*
+=============
+idMat4::CreateLookAt
+=============
+*/
+idMat4 idMat4::CreateLookAt( const idVec3 &cameraPosition, const idVec3 &cameraTarget, const idVec3 &cameraUpVector ) {
+	idVec3 targetToPosition = cameraPosition - cameraTarget;
+	idVec3 vectorA = targetToPosition;
+	vectorA.Normalize();
+	idVec3 vectorB = cameraUpVector.Cross( vectorA );
+	vectorB.Normalize();
+	idVec3 vectorC = vectorA.Cross( vectorB );
+
+	return idMat4(	vectorB.x, vectorB.y, vectorB.z, -vectorB * cameraPosition,
+					vectorC.x, vectorC.y, vectorC.z, -vectorC * cameraPosition,
+					vectorA.x, vectorA.y, vectorA.z, -vectorA * cameraPosition,
+					0.0f, 0.0f, 0.0f, 1.0f );
+}
+
 
 //===============================================================
 //
