@@ -1,0 +1,14 @@
+# Target labels
+ sdl-populate
+# Source files and their labels
+/app/build/_deps/sdl-subbuild/CMakeFiles/sdl-populate
+/app/build/_deps/sdl-subbuild/CMakeFiles/sdl-populate.rule
+/app/build/_deps/sdl-subbuild/CMakeFiles/sdl-populate-complete.rule
+/app/build/_deps/sdl-subbuild/sdl-populate-prefix/src/sdl-populate-stamp/sdl-populate-build.rule
+/app/build/_deps/sdl-subbuild/sdl-populate-prefix/src/sdl-populate-stamp/sdl-populate-configure.rule
+/app/build/_deps/sdl-subbuild/sdl-populate-prefix/src/sdl-populate-stamp/sdl-populate-download.rule
+/app/build/_deps/sdl-subbuild/sdl-populate-prefix/src/sdl-populate-stamp/sdl-populate-install.rule
+/app/build/_deps/sdl-subbuild/sdl-populate-prefix/src/sdl-populate-stamp/sdl-populate-mkdir.rule
+/app/build/_deps/sdl-subbuild/sdl-populate-prefix/src/sdl-populate-stamp/sdl-populate-patch.rule
+/app/build/_deps/sdl-subbuild/sdl-populate-prefix/src/sdl-populate-stamp/sdl-populate-test.rule
+/app/build/_deps/sdl-subbuild/sdl-populate-prefix/src/sdl-populate-stamp/sdl-populate-update.rule
