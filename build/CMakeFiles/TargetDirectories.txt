@@ -1,7 +1,0 @@
-/app/build/CMakeFiles/idlib_standalone.dir
-/app/build/CMakeFiles/edit_cache.dir
-/app/build/CMakeFiles/rebuild_cache.dir
-/app/build/_deps/sdl-build/CMakeFiles/SDL3-static.dir
-/app/build/_deps/sdl-build/CMakeFiles/SDL_uclibc.dir
-/app/build/_deps/sdl-build/CMakeFiles/edit_cache.dir
-/app/build/_deps/sdl-build/CMakeFiles/rebuild_cache.dir
