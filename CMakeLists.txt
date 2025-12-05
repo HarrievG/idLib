@@ -37,6 +37,7 @@ list(FILTER idlib_headers EXCLUDE REGEX "^out/.*")
 message(STATUS "idlib_headers: ${idlib_headers}")
 
 add_library(idlib_standalone STATIC ${idlib_sources})
+add_library(idlib-static ALIAS idlib_standalone)
 #add_library(idlib_standalone_shared SHARED ${idlib_sources})
 
 target_include_directories(idlib_standalone PUBLIC 
