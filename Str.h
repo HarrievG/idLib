@@ -37,10 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "CmdArgs.h"
 #include "containers/Sort.h"
 
-#ifndef strcpy_s
-#define strcpy_s( dst, len, src ) strncpy( dst, src, len )
-#endif
-
 enum utf8Encoding_t {
 	UTF8_PURE_ASCII,		// no characters with values > 127
 	UTF8_ENCODED_BOM,		// characters > 128 encoded with UTF8, but no byte-order-marker at the beginning
