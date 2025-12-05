@@ -62,7 +62,8 @@ The *Swap* static template class, idSwap, is used by the SwapClass template clas
 performing EndianSwapping.
 ================================================
 */
-class idSwap {
+//it looks like this is missing implementations for LittleEndian swap
+class idByteSwap {
 public:
 	//#define SwapBytes( x, y )		(x) ^= (y) ^= (x) ^= (y)
 	#define SwapBytes( x, y )		{ byte t = (x); (x) = (y); (y) = t; }
@@ -184,28 +185,28 @@ public:
 	}
 
 	template<class type> void Little( type &c ) {
-		idSwap::Little( c );
+		idByteSwap::Little( c );
 		#ifdef _DEBUG
 			size += sizeof( type );
 		#endif
 	}
 
 	template<class type> void Big( type &c ) {
-		idSwap::Big( c );
+		idByteSwap::Big( c );
 		#ifdef _DEBUG
 			size += sizeof( type );
 		#endif
 	}
 
 	template<class type> void LittleArray( type *c, int count ) {
-		idSwap::LittleArray( c, count );
+		idByteSwap::LittleArray( c, count );
 		#ifdef _DEBUG
 			size += count * sizeof( type );
 		#endif
 	}
 
 	template<class type> void BigArray( type *c, int count ) {
-		idSwap::BigArray( c, count );
+		idByteSwap::BigArray( c, count );
 		#ifdef _DEBUG
 			size += count * sizeof( type );
 		#endif
