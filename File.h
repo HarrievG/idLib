@@ -167,6 +167,7 @@ class idFile_Memory : public idFile
 	friend class			idFileSystemLocal;
 
 public:
+	void Init();
 	idFile_Memory();	// file for writing without name
 	idFile_Memory( const char* name );	// file for writing
 	idFile_Memory( const char* name, char* data, int length );	// file for writing

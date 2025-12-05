@@ -118,7 +118,7 @@ int idFile::WriteMat3( const idMat3& mat ) { return Write( &mat, sizeof(mat) ); 
 
 // idFile_Memory
 
-idFile_Memory::idFile_Memory() {
+void idFile_Memory::Init() {
     mode = 0;
     maxSize = 0;
     fileSize = 0;
@@ -128,8 +128,12 @@ idFile_Memory::idFile_Memory() {
     curPtr = NULL;
 }
 
+idFile_Memory::idFile_Memory() {
+    Init();
+}
+
 idFile_Memory::idFile_Memory( const char* name ) {
-    idFile_Memory();
+    Init();
     this->name = name;
 }
 
