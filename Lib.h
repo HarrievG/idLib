@@ -60,11 +60,12 @@ void	SixtetsForInt( byte *out, int src);
 int		IntForSixtets( byte *in );
 
 
-#ifdef _DEBUG
-void AssertFailed( const char *file, int line, const char *expression );
+#include <SDL3/SDL_assert.h>
+
 #undef assert
-#define assert( X )		if ( X ) { } else AssertFailed( __FILE__, __LINE__, #X )
-#define verify( x )		( ( x ) ? true : ( AssertFailed( __FILE__, __LINE__, #x ), false ) )
+#define assert( X )		SDL_assert( X )
+#ifdef _DEBUG
+#define verify( x )		( ( x ) ? true : ( SDL_assert( false ), false ) )
 #else
 #define verify( x )		( ( x ) ? true : false )
 #endif
@@ -76,5 +77,10 @@ public:
 	idException( const char *text = "" ) { strcpy( error, text ); }
 };
 
+namespace idLib {
+	void	Printf( const char *fmt, ... );
+	void	Warning( const char *fmt, ... );
+	void	FatalError( const char *fmt, ... );
+}
 
 #endif	/* !__LIB_H__ */
