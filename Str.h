@@ -33,7 +33,13 @@ If you have questions concerning this license or the applicable additional terms
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include "CmdArgs.h"
+#include "containers/Sort.h"
+
+#ifndef strcpy_s
+#define strcpy_s( dst, len, src ) strncpy( dst, src, len )
+#endif
 
 enum utf8Encoding_t {
 	UTF8_PURE_ASCII,		// no characters with values > 127
@@ -199,6 +205,8 @@ public:
 
 						// case insensitive compare
 	int					Icmp( const char *text ) const;
+	int					IcmpPath( const char *text ) const;
+	int					IcmpnPath( const char *text, int n ) const;
 	int					Icmpn( const char *text, int n ) const;
 	int					IcmpPrefix( const char *text ) const;
 
@@ -293,6 +301,8 @@ public:
 	static int			Cmp( const char *s1, const char *s2 );
 	static int			Cmpn( const char *s1, const char *s2, int n );
 	static int			Icmp( const char *s1, const char *s2 );
+	static int			IcmpPath( const char *s1, const char *s2 );
+	static int			IcmpnPath( const char *s1, const char *s2, int n );
 	static int			Icmpn( const char *s1, const char *s2, int n );
 	static int			IcmpNoColor( const char *s1, const char *s2 );
 	static void			Append( char *dest, int size, const char *src );
@@ -343,6 +353,32 @@ public:
 
 	int					DynamicMemoryUsed() const;
 	static idStr		FormatNumber( int number );
+
+	/*
+	================================================================================================
+
+		Sort routines for sorting idList<idStr>
+
+	================================================================================================
+	*/
+
+	class idSort_Str : public idSort_Quick< idStr, idSort_Str >
+	{
+	public:
+		int Compare( const idStr& a, const idStr& b ) const
+		{
+			return a.Icmp( b );
+		}
+	};
+
+	class idSort_PathStr : public idSort_Quick< idStr, idSort_PathStr >
+	{
+	public:
+		int Compare( const idStr& a, const idStr& b ) const
+		{
+			return a.IcmpPath( b );
+		}
+	};
 
 protected:
 	int					len;
@@ -706,6 +742,16 @@ inline int idStr::CmpPrefix( const char *text ) const {
 inline int idStr::Icmp( const char *text ) const {
 	assert( text );
 	return idStr::Icmp( data, text );
+}
+
+inline int idStr::IcmpPath( const char *text ) const {
+	assert( text );
+	return idStr::IcmpPath( data, text );
+}
+
+inline int idStr::IcmpnPath( const char *text, int n ) const {
+	assert( text );
+	return idStr::IcmpnPath( data, text, n );
 }
 
 inline int idStr::Icmpn( const char *text, int n ) const {
