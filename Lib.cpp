@@ -1,4 +1,7 @@
 #include "Lib.h"
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 #include "Str.h"
 #include "Dict.h"
 #include "math/Vector.h"
@@ -47,7 +50,7 @@ RESULTS
 Reverses the byte order in each of elcount elements.
 ===================================================================== */
 ID_INLINE static void RevBytesSwap( void *bp, int elsize, int elcount ) {
-	register unsigned char *p, *q;
+	unsigned char *p, *q;
 
 	p = ( unsigned char * ) bp;
 
@@ -260,19 +263,32 @@ Assertion
 ===============================================================================
 */
 
-void AssertFailed( const char *file, int line, const char *expression ) {
-	//idLib::sys->DebugPrintf( "\n\nASSERTION FAILED!\n%s(%d): '%s'\n", file, line, expression );
-#ifdef _MSC_VER
-	__debugbreak();
-	//if (dev_fatalAssert.GetBool())
-		_exit(1);
-#elif defined(__unix__)
-	// __builtin_trap() causes an illegal instruction which is kinda ugly.
-	// especially if you'd like to be able to continue after the assertion during debugging
-	raise(SIGTRAP); // this will break into the debugger.
-#elif defined( __GNUC__ )
-	__builtin_trap();
-	_exit(1);
-#endif
+namespace idLib {
+
+void Printf( const char *fmt, ... ) {
+	va_list argptr;
+	va_start( argptr, fmt );
+	vprintf( fmt, argptr );
+	va_end( argptr );
+}
+
+void Warning( const char *fmt, ... ) {
+	va_list argptr;
+	printf( "WARNING: " );
+	va_start( argptr, fmt );
+	vprintf( fmt, argptr );
+	va_end( argptr );
+	printf( "\n" );
+}
+
+void FatalError( const char *fmt, ... ) {
+	va_list argptr;
+	printf( "FATAL ERROR: " );
+	va_start( argptr, fmt );
+	vprintf( fmt, argptr );
+	va_end( argptr );
+	printf( "\n" );
+	exit( 1 );
+}
 
 }
