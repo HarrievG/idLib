@@ -76,5 +76,12 @@ public:
 	idException( const char *text = "" ) { strcpy( error, text ); }
 };
 
+namespace idLib {
+	void	Printf( const char *fmt, ... );
+	void	Warning( const char *fmt, ... );
+	void	FatalError( const char *fmt, ... );
+}
+
+const char *va( const char *fmt, ... );
 
 #endif	/* !__LIB_H__ */

@@ -1,4 +1,7 @@
 #include "Lib.h"
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 #include "Str.h"
 #include "Dict.h"
 #include "math/Vector.h"
@@ -259,6 +262,52 @@ Assertion
 
 ===============================================================================
 */
+
+namespace idLib {
+
+void Printf( const char *fmt, ... ) {
+	va_list argptr;
+	va_start( argptr, fmt );
+	vprintf( fmt, argptr );
+	va_end( argptr );
+}
+
+void Warning( const char *fmt, ... ) {
+	va_list argptr;
+	printf( "WARNING: " );
+	va_start( argptr, fmt );
+	vprintf( fmt, argptr );
+	va_end( argptr );
+	printf( "\n" );
+}
+
+void FatalError( const char *fmt, ... ) {
+	va_list argptr;
+	printf( "FATAL ERROR: " );
+	va_start( argptr, fmt );
+	vprintf( fmt, argptr );
+	va_end( argptr );
+	printf( "\n" );
+	exit( 1 );
+}
+
+}
+
+char *va( const char *fmt, ... ) {
+	static int index = 0;
+	static char string[4][16384];	// in case called by nested functions
+	char *buf;
+
+	buf = string[index];
+	index = (index + 1) & 3;
+
+	va_list argptr;
+	va_start( argptr, fmt );
+	vsnprintf( buf, sizeof( string[0] ), fmt, argptr );
+	va_end( argptr );
+
+	return buf;
+}
 
 void AssertFailed( const char *file, int line, const char *expression ) {
 	//idLib::sys->DebugPrintf( "\n\nASSERTION FAILED!\n%s(%d): '%s'\n", file, line, expression );
