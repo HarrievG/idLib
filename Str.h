@@ -33,7 +33,12 @@ If you have questions concerning this license or the applicable additional terms
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include "CmdArgs.h"
+
+#ifndef strcpy_s
+#define strcpy_s( dst, len, src ) strncpy( dst, src, len )
+#endif
 
 enum utf8Encoding_t {
 	UTF8_PURE_ASCII,		// no characters with values > 127

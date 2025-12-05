@@ -29,6 +29,7 @@ endif()
 message(STATUS "idlib : globbing sources")
 file(GLOB_RECURSE idlib_sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.cpp")
 list(REMOVE_ITEM idlib_sources "test.cpp")
+list(REMOVE_ITEM idlib_sources "test_cvar_cmd_fs.cpp")
 list(FILTER idlib_sources EXCLUDE REGEX "^out/.*")
 message(STATUS "idlib_sources: ${idlib_sources}")
 
@@ -45,3 +46,11 @@ target_include_directories(idlib_standalone PUBLIC
 )
 
 target_link_libraries(idlib_standalone PRIVATE SDL3::SDL3-static )
+
+enable_testing()
+
+add_executable(idlib_test test_cvar_cmd_fs.cpp)
+target_link_libraries(idlib_test PRIVATE idlib_standalone SDL3::SDL3-static)
+target_include_directories(idlib_test PRIVATE .)
+
+add_test(NAME idlib_test COMMAND idlib_test)
