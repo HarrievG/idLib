@@ -78,12 +78,9 @@ public:
 };
 
 namespace idLib {
-	#define		MAX_CONSOLE_LINES	32
-	int			com_numConsoleLines;
-	idCmdArgs	com_consoleLines[MAX_CONSOLE_LINES];
-
 	void	ParseCommandLine( int argc, const char* const* argv );
-
+	void 	AddStartupCommands();
+	
 	void	Printf( const char *fmt, ... );
 	void	Warning( const char *fmt, ... );
 	void	FatalError( const char *fmt, ... );
