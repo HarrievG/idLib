@@ -8,7 +8,7 @@
 #include "math/Polynomial.h"
 #include "math/Simd.h"
 #include <SDL3/SDL.h>
-
+#include "CmdSystem.h"
 
 /*
 ===============================================================================
@@ -264,6 +264,62 @@ Assertion
 */
 
 namespace idLib {
+
+#define		MAX_CONSOLE_LINES	32
+int			com_numConsoleLines;
+idCmdArgs	com_consoleLines[MAX_CONSOLE_LINES];
+
+
+void AddStartupCommands()
+{
+	// quote every token, so args with semicolons can work
+	for( int i = 0; i < com_numConsoleLines; i++ )
+	{
+		if( !com_consoleLines[i].Argc() )
+		{
+			continue;
+		}
+		// directly as tokenized so nothing gets screwed
+		cmdSystem->BufferCommandArgs( CMD_EXEC_APPEND, com_consoleLines[i] );
+	}
+}
+
+
+void ParseCommandLine( int argc, const char* const* argv )
+{
+	int i, current_count;
+
+	com_numConsoleLines = 0;
+	current_count = 0;
+	// API says no program path
+	for( i = 0; i < argc; i++ )
+	{
+		if( idStr::Icmp( argv[ i ], "+connect_lobby" ) == 0 )
+		{
+			// Handle Steam bootable invites.
+			// RB begin
+// #if defined(_WIN32)
+// 			session->HandleBootableInvite( _atoi64( argv[ i + 1 ] ) );
+// #else
+// 			session->HandleBootableInvite( atol( argv[ i + 1 ] ) );
+// #endif
+			// RB end
+		}
+		else if( argv[ i ][ 0 ] == '+' )
+		{
+			com_numConsoleLines++;
+			com_consoleLines[ com_numConsoleLines - 1 ].AppendArg( argv[ i ] + 1 );
+		}
+		else
+		{
+			if( !com_numConsoleLines )
+			{
+				com_numConsoleLines++;
+			}
+			com_consoleLines[ com_numConsoleLines - 1 ].AppendArg( argv[ i ] );
+		}
+	}
+}
 
 void Printf( const char *fmt, ... ) {
 	va_list argptr;
