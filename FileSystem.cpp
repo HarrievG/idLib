@@ -153,7 +153,7 @@ int idFileSystemLocal::GetFileLength( const char* relativePath ) {
     return -1;
 }
 
-int idFileSystemLocal::Exists( const char* relativePath ) {
+bool idFileSystemLocal::Exists( const char* relativePath ) {
     return GetFileLength(relativePath) >= 0;
 }
 
