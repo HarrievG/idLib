@@ -210,7 +210,8 @@ public:
 
 	// Returns length of file, -1 if no file exists
 	virtual int				GetFileLength( const char* relativePath ) = 0;
-
+	// Returns True if file exists
+	virtual bool 			Exists( const char* relativePath ) = 0;
     // sysFolder_t needs to be defined if not available in Lib.h/Platform.h
     // Assuming it's an enum or similar. I'll use int for now if I can't find definition.
     // Platform.h didn't show sysFolder_t. It might be in Sys system which is not ported.

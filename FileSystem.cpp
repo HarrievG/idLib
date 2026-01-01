@@ -88,6 +88,7 @@ public:
 	virtual findFile_t		FindFile( const char* path );
 	virtual bool			FilenameCompare( const char* s1, const char* s2 ) const;
 	virtual int				GetFileLength( const char* relativePath );
+    virtual bool            Exists(( const char* relativePath );
 	virtual bool			IsFolder( const char* relativePath, const char* basePath = "fs_basepath" );
 	// resource tracking
 	virtual void			EnableBackgroundCache( bool enable );
@@ -151,6 +152,11 @@ int idFileSystemLocal::GetFileLength( const char* relativePath ) {
     }
     return -1;
 }
+
+int idFileSystemLocal::Exists( const char* relativePath ) {
+    return GetFileLength(relativePath) >= 0;
+}
+
 bool idFileSystemLocal::IsFolder( const char* relativePath, const char* basePath ) {
     const char* path = RelativePathToOSPath( relativePath, basePath );
     SDL_PathInfo info;
