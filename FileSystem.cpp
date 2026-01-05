@@ -171,11 +171,11 @@ idFileSystemLocal::idFileSystemLocal()
 }
 
 void idFileSystemLocal::Init() {
-    SetStartupVariable( "fs_basepath" );
-	SetStartupVariable( "fs_savepath" );
-	SetStartupVariable( "fs_game" );
-	SetStartupVariable( "fs_game_base" );
-	SetStartupVariable( "fs_copyfiles" );
+    idLib::SetStartupVariable( "fs_basepath" );
+	idLib::SetStartupVariable( "fs_savepath" );
+	idLib::SetStartupVariable( "fs_game" );
+	idLib::SetStartupVariable( "fs_game_base" );
+	idLib::SetStartupVariable( "fs_copyfiles" );
 
 	if ( fs_basepath.GetString()[0] == '\0' )
 	{
