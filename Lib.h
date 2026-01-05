@@ -80,7 +80,8 @@ public:
 namespace idLib {
 	void	ParseCommandLine( int argc, const char* const* argv );
 	void 	AddStartupCommands();
-	
+	void 	SetStartupVariable( const char* match );
+
 	void	Printf( const char *fmt, ... );
 	void	Warning( const char *fmt, ... );
 	void	FatalError( const char *fmt, ... );

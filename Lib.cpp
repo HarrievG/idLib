@@ -9,7 +9,7 @@
 #include "math/Simd.h"
 #include <SDL3/SDL.h>
 #include "CmdSystem.h"
-
+#include "CVarSystem.h"
 /*
 ===============================================================================
 
@@ -318,6 +318,38 @@ void ParseCommandLine( int argc, const char* const* argv )
 			}
 			com_consoleLines[ com_numConsoleLines - 1 ].AppendArg( argv[ i ] );
 		}
+	}
+}
+
+
+/*
+==================
+StartupVariable
+
+Searches for command line parameters that are set commands.
+If match is not NULL, only that cvar will be looked for.
+That is necessary because cddir and basedir need to be set
+before the filesystem is started, but all other sets should
+be after execing the config and default.
+==================
+*/
+void SetStartupVariable( const char* match )
+{
+	int i = 0;
+	while(	i < com_numConsoleLines )
+	{
+		if( strcmp( com_consoleLines[ i ].Argv( 0 ), "set" ) != 0 )
+		{
+			i++;
+			continue;
+		}
+		const char* s = com_consoleLines[ i ].Argv( 1 );
+
+		if( !match || !idStr::Icmp( s, match ) )
+		{
+			cvarSystem->SetCVarString( s, com_consoleLines[ i ].Argv( 2 ) );
+		}
+		i++;
 	}
 }
 
