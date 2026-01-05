@@ -171,6 +171,12 @@ idFileSystemLocal::idFileSystemLocal()
 }
 
 void idFileSystemLocal::Init() {
+    SetStartupVariable( "fs_basepath" );
+	SetStartupVariable( "fs_savepath" );
+	SetStartupVariable( "fs_game" );
+	SetStartupVariable( "fs_game_base" );
+	SetStartupVariable( "fs_copyfiles" );
+
 	if ( fs_basepath.GetString()[0] == '\0' )
 	{
         const char *base = SDL_GetBasePath();
