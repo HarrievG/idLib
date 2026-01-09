@@ -317,7 +317,7 @@ int idSurface_Polytope::SplitPolytope( const idPlane &plane, const float epsilon
 				edgeNum = surf->edgeIndexes[onPlaneEdges[s][j]];
 				if ( v1 == surf->edges[abs(edgeNum)].verts[INTSIGNBITSET(edgeNum)] ) {
 					v1 = surf->edges[abs(edgeNum)].verts[INTSIGNBITNOTSET(edgeNum)];
-					idSwap( onPlaneEdges[s][i], onPlaneEdges[s][j] );
+					idSwapL( onPlaneEdges[s][i], onPlaneEdges[s][j] );
 					break;
 				}
 			}

@@ -162,7 +162,7 @@ void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPo
 			}
 		}
 		if ( bestMax[0] == START_MAX ) {	// FIXME: return an error code
-			//idLib::common->FatalError( "RectAllocator: couldn't fit everything" );
+			idLib::FatalError( "RectAllocator: couldn't fit everything" );
 		}
 		outputPositions[sizeRemap[i]] = best;
 		totalSize = bestMax;

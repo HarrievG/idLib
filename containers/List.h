@@ -87,7 +87,7 @@ idSwap<type>
 ================
 */
 template< class type >
-inline void idSwap( type &a, type &b ) {
+inline void idSwapL( type &a, type &b ) {
 	type c = a;
 	a = b;
 	b = c;
@@ -390,10 +390,13 @@ Allocates memory for the amount of elements requested while keeping the contents
 Contents are copied using their = operator so that data is correnctly instantiated.
 ================
 */
-#pragma GCC diagnostic push
-// shut up GCC's stupid "warning: assuming signed overflow does not occur when assuming that
-// (X - c) > X is always false [-Wstrict-overflow]"
-#pragma GCC diagnostic ignored "-Wstrict-overflow"
+#ifdef __GNUC__
+	#pragma GCC diagnostic push
+	// shut up GCC's stupid "warning: assuming signed overflow does not occur when assuming that
+	// (X - c) > X is always false [-Wstrict-overflow]"
+	#pragma GCC diagnostic ignored "-Wstrict-overflow"
+#endif
+
 template< class type >
 inline void idList<type>::Resize( int newsize ) {
 	type	*temp;
@@ -430,7 +433,9 @@ inline void idList<type>::Resize( int newsize ) {
 		delete[] temp;
 	}
 }
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
 
 /*
 ================
@@ -589,10 +594,12 @@ inline idList<type> &idList<type>::operator=( const idList<type> &other ) {
 	return *this;
 }
 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 // shut up GCC's stupid "warning: assuming signed overflow does not occur when assuming that
 // (X - c) > X is always false [-Wstrict-overflow]"
 #pragma GCC diagnostic ignored "-Wstrict-overflow"
+#endif
 /*
 ================
 idList<type>::operator[] const
@@ -624,7 +631,11 @@ inline type &idList<type>::operator[]( int index ) {
 
 	return list[ index ];
 }
+
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
+
 
 /*
 ================
@@ -1034,10 +1045,10 @@ Swaps the contents of two lists
 */
 template< class type >
 inline void idList<type>::Swap( idList<type> &other ) {
-	idSwap( num, other.num );
-	idSwap( size, other.size );
-	idSwap( granularity, other.granularity );
-	idSwap( list, other.list );
+	idSwapL( num, other.num );
+	idSwapL( size, other.size );
+	idSwapL( granularity, other.granularity );
+	idSwapL( list, other.list );
 }
 
 #endif /* !__LIST_H__ */

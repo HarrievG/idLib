@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include "tools/compiler_public.h"
 
 // Mocking common if needed, but we used idLib::Printf/Warning/FatalError.
 
@@ -82,7 +83,7 @@ void TestIdStr() {
 
     // Formatting
     idStr fmt;
-    sprintf(fmt, "Value: %d", 42);
+	sprintf(fmt, "Value: %d", 42);
     CHECK( fmt == "Value: 42" );
 
     idLib::Printf("Formatting passed: %s\n", fmt.c_str());
@@ -93,6 +94,8 @@ void TestIdStr() {
 int main( int argc, char* argv[] ) {
     idLib::Printf("Initializing systems...\n");
 
+	idLib::Init();
+
     // Initialize Cmd System
     cmdSystem->Init();
 
@@ -102,8 +105,10 @@ int main( int argc, char* argv[] ) {
     // Ensure static cvars are registered (sets staticVars to UINTPTR_MAX so subsequent cvars register immediately)
     idCVar::RegisterStaticVars();
 
+	cmdSystem->ExecuteCommandText( "set fs_savepath C:/Users/06162/Saved Games/id Software/RBDOOM 3 BFG");
+
     // Initialize File System
-    fileSystem->Init();
+    fileSystem->Init();	
 
     // Register a CVar
     idCVar testCVar( "test_cvar", "10", CVAR_SYSTEM | CVAR_INTEGER, "A test cvar" );
@@ -126,17 +131,28 @@ int main( int argc, char* argv[] ) {
     CHECK( testCVar.GetInteger() == 20 );
     idLib::Printf("Test CVar new value: %d\n", testCVar.GetInteger());
 
+	cmdSystem->ExecuteCommandText( "path");
+
     // List files
     idLib::Printf("Listing files in root:\n");
-    cmdSystem->ExecuteCommandText( "dir /" );
-
+    cmdSystem->ExecuteCommandText( "dir . " );
+	cmdSystem->ExecuteCommandText( "dir / / " );
     // Run extended idStr tests
     TestIdStr();
 
-    // Shutdown
-    fileSystem->Shutdown(false);
-    cmdSystem->Shutdown();
-    cvarSystem->Shutdown();
+    // Verify dmap linkage
+    idCmdArgs args;
+
+	
+	args.AppendArg("dmap" );
+	args.AppendArg("obj" );
+	args.AppendArg("test.map" );
+    Rogmap_f( args ); // Just verifying it links, don't actually run it without args
+
+	// Shutdown
+	fileSystem->Shutdown( false );
+	cmdSystem->Shutdown( );
+	cvarSystem->Shutdown();
 
     idLib::Printf("Systems shutdown.\n");
 

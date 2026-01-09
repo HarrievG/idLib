@@ -375,7 +375,7 @@ const char *idLangDict::GetString( const char *str ) const {
 		}
 	}
 
-	// idLib::common->Warning( "Unknown string id %s", str );
+	// idLib::idLib::Warning( "Unknown string id %s", str );
 	return str;
 }
 
@@ -545,7 +545,7 @@ int idLangDict::GetHashKey( const char *str ) const {
 		//if(!warnedAboutInvalidKey && (str[0] < '0' || str[0] > '9')) {
 			// The "hash" code here very obviously expects numbers, but apparently it still somehow works,
 			// so just warn about it and otherwise accept those entries, seems to work for D3LE?
-			//idLib::common->Warning( "We have at least one invalid key in a language dict: %s\n"
+			//idLib::idLib::Warning( "We have at least one invalid key in a language dict: %s\n"
 			//                        " (might still work, but Doom3 really wants #str_01234, i.e. only a number after '#str_')\n", strbk );
 			//warnedAboutInvalidKey = true;
 		//}

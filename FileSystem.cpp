@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 idCVar fs_basepath( "fs_basepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar fs_savepath( "fs_savepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar fs_game( "fs_game", "", CVAR_SYSTEM | CVAR_INIT | CVAR_SERVERINFO, "mod path" );
-idCVar fs_game_base( "fs_game_base", "mod_icedhellfire", CVAR_SYSTEM | CVAR_INIT | CVAR_SERVERINFO, "alternate mod path, searched after the main fs_game path, before the basedir" );
+idCVar fs_game_base( "fs_game_base", "", CVAR_SYSTEM | CVAR_INIT | CVAR_SERVERINFO, "alternate mod path, searched after the main fs_game path, before the basedir" );
 idCVar fs_copyfiles( "fs_copyfiles", "0", CVAR_SYSTEM | CVAR_INIT | CVAR_BOOL, "Copy every file touched to fs_savepath" );
 idCVar fs_debug( "fs_debug", "0", CVAR_SYSTEM | CVAR_INTEGER, "", 0, 2 );
 
@@ -111,7 +111,7 @@ private:
     void                    GetExtensionList( const char* extension, idStrList& extensionList ) const;
     int						GetFileList( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, bool fullRelativePath, bool allowSubdirsForResourcePaks, const char* gamedir );
     int						GetFileListTree( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, bool allowSubdirsForResourcePaks, const char* gamedir );
-    int						ListOSFiles( const char* directory, const char* extension, idStrList& list );
+    int						ListOSFiles( const char* directory, const idStr& extension, idStrList& list );
 
     // SDL3 Helper
     SDL_IOStream*           OpenOSFile( const char* name, fsMode_t mode );
@@ -160,7 +160,7 @@ bool idFileSystemLocal::Exists( const char* relativePath ) {
 bool idFileSystemLocal::IsFolder( const char* relativePath, const char* basePath ) {
     const char* path = RelativePathToOSPath( relativePath, basePath );
     SDL_PathInfo info;
-    if ( SDL_GetPathInfo( path, &info ) == 0 ) {
+    if ( SDL_GetPathInfo( path, &info )) {
         return info.type == SDL_PATHTYPE_DIRECTORY;
     }
     return false;
@@ -463,30 +463,31 @@ static SDL_EnumerationResult SDLCALL EnumCallback(void *userdata, const char *di
     return SDL_ENUM_CONTINUE;
 }
 
-int	idFileSystemLocal::ListOSFiles( const char* directory, const char* extension, idStrList& list )
+int	idFileSystemLocal::ListOSFiles( const char* directory, const idStr& extension, idStrList& list )
 {
     idStrList sysFiles;
     SDL_EnumerateDirectory( directory, EnumCallback, &sysFiles );
 
     // Filter by extension
     for( int i = 0; i < sysFiles.Num(); i++ ) {
+		
+		idStr fullPath = directory;
+		fullPath.AppendPath( sysFiles[i] );
+
+		SDL_PathInfo info;
+		if (!SDL_GetPathInfo( fullPath, &info )) {
+				idLib::Warning("could not get pathinfo for %s",fullPath.c_str() );
+				continue;
+		}
+		bool isFolder = info.type == SDL_PATHTYPE_DIRECTORY;
+
         if ( extension[0] == '/' && extension[1] == 0 ) {
             // Check if it's a directory
-            idStr fullPath = directory;
-            fullPath.AppendPath( sysFiles[i] );
-            if ( IsFolder( fullPath, "" ) ) { // Need relative path for IsFolder logic?
-                // IsFolder uses RelativePathToOSPath.
-                // Here we have absolute path (if directory is absolute).
-                // Or path relative to base.
-                // SDL_GetPathInfo needs full path or relative to CWD.
-                // Assuming directory is valid path for SDL.
-                SDL_PathInfo info;
-                if ( SDL_GetPathInfo( fullPath, &info ) == 0 && info.type == SDL_PATHTYPE_DIRECTORY ) {
-                    list.Append( sysFiles[i] );
-                }
+            if ( isFolder ) { 
+				list.Append( sysFiles[i] );
             }
         }
-        else if ( idStr::CheckExtension( sysFiles[i], extension ) ) {
+        else if ((extension.IsEmpty() && !isFolder) || idStr::CheckExtension( sysFiles[i],extension ) ) {
             list.Append( sysFiles[i] );
         }
     }
@@ -672,11 +673,75 @@ void idFileSystemLocal::FreeFileList( idFileList* fileList )
 }
 
 void idFileSystemLocal::Dir_f( const idCmdArgs& args ) {
-    // Stub
-    idLib::Printf("Dir command\n");
+	idStr		relativePath;
+	idStr		extension;
+	idFileList* fileList;
+	int			i;
+
+	if( args.Argc() < 2 || args.Argc() > 3 )
+	{
+		idLib::Printf( "usage: dir <directory> [extension]\n" );
+		return;
+	}
+
+	if( args.Argc() == 2 )
+	{
+		relativePath = args.Argv( 1 );
+		extension = "";
+	}
+	else
+	{
+		extension = args.Argv( 2 );
+		if( (extension[0] == '/' && extension[1] != 0) && extension[0] != '.' )
+		{
+			idLib::Warning( "extension should have a leading dot" );
+		}
+	}
+	relativePath.BackSlashesToSlashes();
+	relativePath.StripTrailing( '/' );
+
+	idLib::Printf( "Listing of %s/*%s\n", relativePath.c_str( ), extension.c_str( ) );
+	idLib::Printf( "---------------\n" );
+
+	fileList = fileSystemLocal.ListFiles( relativePath, extension );
+
+	for( i = 0; i < fileList->GetNumFiles(); i++ )
+	{
+		idLib::Printf( " %s\n", fileList->GetFile( i ) );
+	}
+
+	idLib::Printf( "---------------\n" );
+
+	if ( extension[0] == '/' && extension[1] == 0 )
+	{
+		idLib::Printf( "%d Folders\n", fileList->list.Num( ) );
+	}else
+	{
+		idLib::Printf( "%d Files\n", fileList->list.Num( ) );
+	}
+
+	idLib::Printf( "\n" );
+
+	fileSystemLocal.FreeFileList( fileList );
 }
 
 void idFileSystemLocal::Path_f( const idCmdArgs& args ) {
-    // Stub
-    idLib::Printf("Path command\n");
+	idLib::Printf( "Current search path:\n" );
+	for ( int sp = fileSystemLocal.searchPaths.Num( ) - 1; sp >= 0; sp-- ) {
+		const searchpath_t &search = fileSystemLocal.searchPaths[sp];
+
+		idLib::Printf( "%s/%s\n", search.path.c_str( ), search.gamedir.c_str( ) );
+
+		//int idx = search.zipFiles.Num( ) - 1;
+		//while ( idx >= 0 ) {
+		//	idLib::Printf( "%s (%i files)\n", search.zipFiles[idx]->GetFileName( ), search.zipFiles[idx]->GetNumFileResources( ) );
+		//	idx--;
+		//}
+		//
+		//idx = search.resourceFiles.Num( ) - 1;
+		//while ( idx >= 0 ) {
+		//	idLib::Printf( "%s/%s/%s (%i files)\n", search.path.c_str( ), search.gamedir.c_str( ), search.resourceFiles[idx]->GetFileName( ), search.resourceFiles[idx]->GetNumFileResources( ) );
+		//	idx--;
+		//}
+	}
 }

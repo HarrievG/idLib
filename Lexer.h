@@ -200,6 +200,12 @@ public:
 					// read a floating point number.  If errorFlag is NULL, a non-numeric token will
 					// issue an Error().  If it isn't NULL, it will issue a Warning() and set *errorFlag = true
 	float			ParseFloat( bool *errorFlag = NULL );
+
+
+	// RB begin
+	int				Parse1DMatrixJSON( int x, float *m );
+	// RB end
+
 					// parse matrices with floats
 	int				Parse1DMatrix( int x, float *m );
 	int				Parse2DMatrix( int y, int x, float *m );

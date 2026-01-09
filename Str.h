@@ -253,6 +253,10 @@ public:
 	idStr				Left( int len ) const;							// return the leftmost 'len' characters
 	idStr				Right( int len ) const;							// return the rightmost 'len' characters
 	idStr				Mid( int start, int len ) const;				// return 'len' characters starting at 'start'
+	void				Format( const char *fmt, ... ); // perform a threadsafe sprintf to the string
+	static idStr		FormatInt( const int num, bool isCash = false );	 // formats an integer as a value with commas
+	static idStr		FormatCash( const int num ) { return FormatInt( num, true ); }
+
 	void				StripLeading( const char c );					// strip char from front as many times as the char occurs
 	void				StripLeading( const char *string );				// strip string from front as many times as the string occurs
 	bool				StripLeadingOnce( const char *string );			// strip string from front just once if it occurs
@@ -376,6 +380,7 @@ public:
 		}
 	};
 
+
 protected:
 	int					len;
 	char *				data;
@@ -384,6 +389,25 @@ protected:
 
 	void				Init( void );										// initialize string using base buffer
 	void				EnsureAlloced( int amount, bool keepold = true );	// ensure string data buffer is large anough
+	
+	// sets the data point to the specified buffer... note that this ignores makes the passed buffer empty and ignores
+	// anything currently in the idStr's dynamic buffer.  This method is intended to be called only from a derived class's constructor.
+	ID_INLINE void SetStaticBuffer( char *buffer, const int bufferLength );
+
+private:
+	// initialize string using base buffer... call ONLY FROM CONSTRUCTOR
+	ID_INLINE void		Construct( );
+
+	static const uint32 STATIC_BIT = 31;
+	static const uint32 STATIC_MASK = 1u << STATIC_BIT;
+	static const uint32 ALLOCED_MASK = STATIC_MASK - 1;
+
+	ID_INLINE int		GetAlloced( ) const { return alloced & ALLOCED_MASK; }
+	ID_INLINE void		SetAlloced( const int a ) { alloced = ( alloced & STATIC_MASK ) | ( a & ALLOCED_MASK ); }
+
+	ID_INLINE bool		IsStatic( ) const { return ( alloced & STATIC_MASK ) != 0; }
+	ID_INLINE void		SetStatic( const bool isStatic ) { alloced = ( alloced & ALLOCED_MASK ) | ( isStatic << STATIC_BIT ); }
+
 };
 
 
@@ -401,6 +425,20 @@ inline void idStr::Init( void ) {
 #ifdef ID_DEBUG_UNINITIALIZED_MEMORY
 	memset( baseBuffer, 0, sizeof( baseBuffer ) );
 #endif
+}
+
+/*
+========================
+idStr::SetStaticBuffer
+========================
+*/
+ID_INLINE void idStr::SetStaticBuffer( char *buffer, const int bufferLength ) {
+	// this should only be called on a freshly constructed idStr
+	assert( data == baseBuffer );
+	data = buffer;
+	len = 0;
+	SetAlloced( bufferLength );
+	SetStatic( true );
 }
 
 inline idStr::idStr( void ) {
@@ -558,10 +596,12 @@ inline idStr::operator const char *( void ) const {
 	return c_str();
 }
 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 // shut up GCC's stupid "warning: assuming signed overflow does not occur when assuming that
 // (X - c) > X is always false [-Wstrict-overflow]"
 #pragma GCC diagnostic ignored "-Wstrict-overflow"
+#endif
 inline char idStr::operator[]( int index ) const {
 	assert( ( index >= 0 ) && ( index <= len ) );
 	return data[ index ];
@@ -571,7 +611,9 @@ inline char &idStr::operator[]( int index ) {
 	assert( ( index >= 0 ) && ( index <= len ) );
 	return data[ index ];
 }
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
 
 inline void idStr::operator=( const idStr &text ) {
 	if (&text == this) {
@@ -1020,17 +1062,21 @@ inline idStr idStr::Left( int len ) const {
 	return Mid( 0, len );
 }
 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 // shut up GCC's stupid "warning: assuming signed overflow does not occur when assuming that
 // (X - c) > X is always false [-Wstrict-overflow]"
 #pragma GCC diagnostic ignored "-Wstrict-overflow"
+#endif
 inline idStr idStr::Right( int len ) const {
 	if ( len >= Length() ) {
 		return *this;
 	}
 	return Mid( Length() - len, len );
 }
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
 
 inline void idStr::Strip( const char c ) {
 	StripLeading( c );

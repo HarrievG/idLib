@@ -100,6 +100,32 @@ template<class T> ID_INLINE T	Min( T x, T y ) { return ( x < y ) ? x : y; }
 #define IEEE_DBLE_EXPONENT_BIAS	0
 #define IEEE_DBLE_SIGN_BIT		79
 
+#define INT8_SIGN_BIT		7
+#define INT16_SIGN_BIT		15
+#define INT32_SIGN_BIT		31
+#define INT64_SIGN_BIT		63
+
+#define INT8_SIGN_MASK		( 1 << INT8_SIGN_BIT )
+#define INT16_SIGN_MASK		( 1 << INT16_SIGN_BIT )
+#define INT32_SIGN_MASK		( 1UL << INT32_SIGN_BIT )
+#define INT64_SIGN_MASK		( 1ULL << INT64_SIGN_BIT )
+
+
+#define OLD_INT32_SIGNBITSET( i )	 ( static_cast<const unsigned int>( i ) >> INT32_SIGN_BIT )
+#define OLD_INT32_SIGNBITNOTSET( i ) ( ( ~static_cast<const unsigned int>( i ) ) >> INT32_SIGN_BIT )
+
+inline int INT32_SIGNBITSET( int i ) {
+	int r = OLD_INT32_SIGNBITSET( i );
+	assert( r == 0 || r == 1 );
+	return r;
+}
+
+inline int INT32_SIGNBITNOTSET( int i ) {
+	int r = OLD_INT32_SIGNBITNOTSET( i );
+	assert( r == 0 || r == 1 );
+	return r;
+}
+
 template<class T> ID_INLINE int	MaxIndex( T x, T y ) { return  ( x > y ) ? 0 : 1; }
 template<class T> ID_INLINE int	MinIndex( T x, T y ) { return ( x < y ) ? 0 : 1; }
 

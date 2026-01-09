@@ -173,17 +173,17 @@ PrintClocks
 void PrintClocks( const char *string, int dataCount, int clocks, int otherClocks = 0 ) {
 	int i;
 
-	idLib::common->Printf( string );
+	idLib::Printf( string );
 	for ( i = idStr::LengthWithoutColors(string); i < 48; i++ ) {
-		idLib::common->Printf(" ");
+		idLib::Printf(" ");
 	}
 	clocks -= baseClocks;
 	if ( otherClocks && clocks ) {
 		otherClocks -= baseClocks;
 		int p = (int) ( (float) ( otherClocks - clocks ) * 100.0f / (float) otherClocks );
-		idLib::common->Printf( "c = %4d, clcks = %5d, %d%%\n", dataCount, clocks, p );
+		idLib::Printf( "c = %4d, clcks = %5d, %d%%\n", dataCount, clocks, p );
 	} else {
-		idLib::common->Printf( "c = %4d, clcks = %5d\n", dataCount, clocks );
+		idLib::Printf( "c = %4d, clcks = %5d\n", dataCount, clocks );
 	}
 }
 
@@ -225,7 +225,7 @@ void TestAdd( void ) {
 		fsrc1[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
@@ -299,7 +299,7 @@ void TestSub( void ) {
 		fsrc1[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
@@ -373,7 +373,7 @@ void TestMul( void ) {
 		fsrc1[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
@@ -450,7 +450,7 @@ void TestDiv( void ) {
 		} while( idMath::Fabs( fsrc1[i] ) < 0.1f );
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 
 	bestClocksGeneric = 0;
@@ -524,7 +524,7 @@ void TestMulAdd( void ) {
 		fsrc0[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	for ( j = 0; j < 50 && j < COUNT; j++ ) {
 
@@ -580,7 +580,7 @@ void TestMulSub( void ) {
 		fsrc0[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	for ( j = 0; j < 50 && j < COUNT; j++ ) {
 
@@ -653,7 +653,7 @@ void TestDot( void ) {
 		drawVerts[i].xyz = v3src0[i];
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 
 	bestClocksGeneric = 0;
@@ -838,7 +838,7 @@ void TestDot( void ) {
 	PrintClocks( va( "   simd->Dot( idVec3[] * idVec3[] ) %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	float dot1 = 0.0f, dot2 = 0.0f;
 	for ( j = 0; j < 50 && j < COUNT; j++ ) {
@@ -883,7 +883,7 @@ void TestCompare( void ) {
 		fsrc0[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
@@ -1131,7 +1131,7 @@ void TestMinMax( void ) {
 		indexes[i] = i;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
@@ -1255,7 +1255,7 @@ void TestClamp( void ) {
 		fsrc0[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
@@ -1347,7 +1347,7 @@ void TestMemcpy( void ) {
 
 	idRandom random( RANDOM_SEED );
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	for ( i = 5; i < 8192; i += 31 ) {
 		for ( j = 0; j < i; j++ ) {
@@ -1356,12 +1356,12 @@ void TestMemcpy( void ) {
 		p_simd->Memcpy( test1, test0, 8192 );
 		for ( j = 0; j < i; j++ ) {
 			if ( test1[j] != test0[j] ) {
-				idLib::common->Printf( "   simd->Memcpy() " S_COLOR_RED "X\n" );
+				idLib::Printf( "   simd->Memcpy() " S_COLOR_RED "X\n" );
 				return;
 			}
 		}
 	}
-	idLib::common->Printf( "   simd->Memcpy() ok\n" );
+	idLib::Printf( "   simd->Memcpy() ok\n" );
 }
 
 /*
@@ -1382,13 +1382,13 @@ void TestMemset( void ) {
 			p_simd->Memset( test, j, i );
 			for ( k = 0; k < i; k++ ) {
 				if ( test[k] != (byte)j ) {
-					idLib::common->Printf( "   simd->Memset() " S_COLOR_RED "X\n" );
+					idLib::Printf( "   simd->Memset() " S_COLOR_RED "X\n" );
 					return;
 				}
 			}
 		}
 	}
-	idLib::common->Printf( "   simd->Memset() ok\n" );
+	idLib::Printf( "   simd->Memset() ok\n" );
 }
 
 #define	MATX_SIMD_EPSILON			1e-5f
@@ -1414,7 +1414,7 @@ void TestMatXMultiplyVecX( void ) {
 	src[4] = 5.0f;
 	src[5] = 6.0f;
 
-	idLib::common->Printf("================= NxN * Nx1 ===================\n" );
+	idLib::Printf("================= NxN * Nx1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( i, i, RANDOM_SEED, -10.0f, 10.0f );
@@ -1444,7 +1444,7 @@ void TestMatXMultiplyVecX( void ) {
 		PrintClocks( va( "   simd->MatX_MultiplyVecX %dx%d*%dx1 %s", i, i, i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= Nx6 * 6x1 ===================\n" );
+	idLib::Printf("================= Nx6 * 6x1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( i, 6, RANDOM_SEED, -10.0f, 10.0f );
@@ -1474,7 +1474,7 @@ void TestMatXMultiplyVecX( void ) {
 		PrintClocks( va( "   simd->MatX_MultiplyVecX %dx6*6x1 %s", i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= 6xN * Nx1 ===================\n" );
+	idLib::Printf("================= 6xN * Nx1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( 6, i, RANDOM_SEED, -10.0f, 10.0f );
@@ -1525,7 +1525,7 @@ void TestMatXMultiplyAddVecX( void ) {
 	src[4] = 5.0f;
 	src[5] = 6.0f;
 
-	idLib::common->Printf("================= NxN * Nx1 ===================\n" );
+	idLib::Printf("================= NxN * Nx1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( i, i, RANDOM_SEED, -10.0f, 10.0f );
@@ -1555,7 +1555,7 @@ void TestMatXMultiplyAddVecX( void ) {
 		PrintClocks( va( "   simd->MatX_MultiplyAddVecX %dx%d*%dx1 %s", i, i, i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= Nx6 * 6x1 ===================\n" );
+	idLib::Printf("================= Nx6 * 6x1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( i, 6, RANDOM_SEED, -10.0f, 10.0f );
@@ -1585,7 +1585,7 @@ void TestMatXMultiplyAddVecX( void ) {
 		PrintClocks( va( "   simd->MatX_MultiplyAddVecX %dx6*6x1 %s", i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= 6xN * Nx1 ===================\n" );
+	idLib::Printf("================= 6xN * Nx1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( 6, i, RANDOM_SEED, -10.0f, 10.0f );
@@ -1637,7 +1637,7 @@ void TestMatXTransposeMultiplyVecX( void ) {
 	src[4] = 5.0f;
 	src[5] = 6.0f;
 
-	idLib::common->Printf("================= Nx6 * Nx1 ===================\n" );
+	idLib::Printf("================= Nx6 * Nx1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( i, 6, RANDOM_SEED, -10.0f, 10.0f );
@@ -1667,7 +1667,7 @@ void TestMatXTransposeMultiplyVecX( void ) {
 		PrintClocks( va( "   simd->MatX_TransposeMulVecX %dx6*%dx1 %s", i, i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= 6xN * 6x1 ===================\n" );
+	idLib::Printf("================= 6xN * 6x1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( 6, i, RANDOM_SEED, -10.0f, 10.0f );
@@ -1719,7 +1719,7 @@ void TestMatXTransposeMultiplyAddVecX( void ) {
 	src[4] = 5.0f;
 	src[5] = 6.0f;
 
-	idLib::common->Printf("================= Nx6 * Nx1 ===================\n" );
+	idLib::Printf("================= Nx6 * Nx1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( i, 6, RANDOM_SEED, -10.0f, 10.0f );
@@ -1749,7 +1749,7 @@ void TestMatXTransposeMultiplyAddVecX( void ) {
 		PrintClocks( va( "   simd->MatX_TransposeMulAddVecX %dx6*%dx1 %s", i, i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= 6xN * 6x1 ===================\n" );
+	idLib::Printf("================= 6xN * 6x1 ===================\n" );
 
 	for ( i = 1; i <= 6; i++ ) {
 		mat.Random( 6, i, RANDOM_SEED, -10.0f, 10.0f );
@@ -1794,7 +1794,7 @@ void TestMatXMultiplyMatX( void ) {
 	const char *result;
 	idMatX m1, m2, dst, tst;
 
-	idLib::common->Printf("================= NxN * Nx6 ===================\n" );
+	idLib::Printf("================= NxN * Nx6 ===================\n" );
 
 	// NxN * Nx6
 	for ( i = 1; i <= 5; i++ ) {
@@ -1825,7 +1825,7 @@ void TestMatXMultiplyMatX( void ) {
 		PrintClocks( va( "   simd->MatX_MultiplyMatX %dx%d*%dx6 %s", i, i, i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= 6xN * Nx6 ===================\n" );
+	idLib::Printf("================= 6xN * Nx6 ===================\n" );
 
 	// 6xN * Nx6
 	for ( i = 1; i <= 5; i++ ) {
@@ -1856,7 +1856,7 @@ void TestMatXMultiplyMatX( void ) {
 		PrintClocks( va( "   simd->MatX_MultiplyMatX 6x%d*%dx6 %s", i, i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= Nx6 * 6xN ===================\n" );
+	idLib::Printf("================= Nx6 * 6xN ===================\n" );
 
 	// Nx6 * 6xN
 	for ( i = 1; i <= 5; i++ ) {
@@ -1887,7 +1887,7 @@ void TestMatXMultiplyMatX( void ) {
 		PrintClocks( va( "   simd->MatX_MultiplyMatX %dx6*6x%d %s", i, i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= 6x6 * 6xN ===================\n" );
+	idLib::Printf("================= 6x6 * 6xN ===================\n" );
 
 	// 6x6 * 6xN
 	for ( i = 1; i <= 6; i++ ) {
@@ -1930,7 +1930,7 @@ void TestMatXTransposeMultiplyMatX( void ) {
 	const char *result;
 	idMatX m1, m2, dst, tst;
 
-	idLib::common->Printf("================= Nx6 * NxN ===================\n" );
+	idLib::Printf("================= Nx6 * NxN ===================\n" );
 
 	// Nx6 * NxN
 	for ( i = 1; i <= 5; i++ ) {
@@ -1961,7 +1961,7 @@ void TestMatXTransposeMultiplyMatX( void ) {
 		PrintClocks( va( "   simd->MatX_TransMultiplyMatX %dx6*%dx%d %s", i, i, i, result ), 1, bestClocksSIMD, bestClocksGeneric );
 	}
 
-	idLib::common->Printf("================= 6xN * 6x6 ===================\n" );
+	idLib::Printf("================= 6xN * 6x6 ===================\n" );
 
 	// 6xN * 6x6
 	for ( i = 1; i <= 6; i++ ) {
@@ -2008,7 +2008,7 @@ void TestMatXLowerTriangularSolve( void ) {
 	idMatX L;
 	idVecX x, b, tst;
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	L.Random( MATX_LTS_SOLVE_SIZE, MATX_LTS_SOLVE_SIZE, 0, -1.0f, 1.0f );
 	x.SetSize( MATX_LTS_SOLVE_SIZE );
@@ -2055,7 +2055,7 @@ void TestMatXLowerTriangularSolveTranspose( void ) {
 	idMatX L;
 	idVecX x, b, tst;
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	L.Random( MATX_LTS_SOLVE_SIZE, MATX_LTS_SOLVE_SIZE, 0, -1.0f, 1.0f );
 	x.SetSize( MATX_LTS_SOLVE_SIZE );
@@ -2105,7 +2105,7 @@ void TestMatXLDLTFactor( void ) {
 	idMatX src, original, mat1, mat2;
 	idVecX invDiag1, invDiag2;
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	original.SetSize( MATX_LDLT_FACTOR_SOLVE_SIZE, MATX_LDLT_FACTOR_SOLVE_SIZE );
 	src.Random( MATX_LDLT_FACTOR_SOLVE_SIZE, MATX_LDLT_FACTOR_SOLVE_SIZE, 0, -1.0f, 1.0f );
@@ -2311,11 +2311,11 @@ void TestConvertJointMatsToJointQuats( void ) {
 
 	for ( i = 0; i < COUNT; i++ ) {
 		if ( !joints1[i].q.Compare( joints2[i].q, 1e-4f ) ) {
-			idLib::common->Printf("ConvertJointMatsToJointQuats: broken q %i\n", i );
+			idLib::Printf("ConvertJointMatsToJointQuats: broken q %i\n", i );
 			break;
 		}
 		if ( !joints1[i].t.Compare( joints2[i].t, 1e-4f ) ) {
-			idLib::common->Printf("ConvertJointMatsToJointQuats: broken t %i\n", i );
+			idLib::Printf("ConvertJointMatsToJointQuats: broken t %i\n", i );
 			break;
 		}
 	}
@@ -2808,7 +2808,7 @@ void TestDeriveTangents( void ) {
 	//	v2 = drawVerts2[i].normal;
 	//	v2.Normalize();
 	//	if ( !v1.Compare( v2, 1e-1f ) ) {
-	//		idLib::common->Printf("DeriveTangents: broken at normal %i\n -- expecting %s got %s", i, v1.ToString(), v2.ToString());
+	//		idLib::Printf("DeriveTangents: broken at normal %i\n -- expecting %s got %s", i, v1.ToString(), v2.ToString());
 	//		break;
 	//	}
 	//	v1 = drawVerts1[i].tangents[0];
@@ -2816,7 +2816,7 @@ void TestDeriveTangents( void ) {
 	//	v2 = drawVerts2[i].tangents[0];
 	//	v2.Normalize();
 	//	if ( !v1.Compare( v2, 1e-1f ) ) {
-	//		idLib::common->Printf("DeriveTangents: broken at tangent0 %i -- expecting %s got %s\n", i, v1.ToString(), v2.ToString() );
+	//		idLib::Printf("DeriveTangents: broken at tangent0 %i -- expecting %s got %s\n", i, v1.ToString(), v2.ToString() );
 	//		break;
 	//	}
 	//	v1 = drawVerts1[i].tangents[1];
@@ -2824,7 +2824,7 @@ void TestDeriveTangents( void ) {
 	//	v2 = drawVerts2[i].tangents[1];
 	//	v2.Normalize();
 	//	if ( !v1.Compare( v2, 1e-1f ) ) {
-	//		idLib::common->Printf("DeriveTangents: broken at tangent1 %i -- expecting %s got %s\n", i, v1.ToString(), v2.ToString() );
+	//		idLib::Printf("DeriveTangents: broken at tangent1 %i -- expecting %s got %s\n", i, v1.ToString(), v2.ToString() );
 	//		break;
 	//	}
 	//	if ( !planes1[i].Compare( planes2[i], 1e-1f, 1e-1f ) ) {
@@ -3503,7 +3503,7 @@ void TestMath( void ) {
 	int i;
 	TIME_TYPE start, end, bestClocks;
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	float tst = -1.0f;
 	float tst2 = 1.0f;
@@ -3838,7 +3838,7 @@ void TestMath( void ) {
 	}
 	PrintClocks( "  idMath::Log16( tst )", 1, bestClocks );
 
-	idLib::common->Printf( "testvar = %f\n", testvar );
+	idLib::Printf( "testvar = %f\n", testvar );
 
 	idMat3 resultMat3;
 	idQuat fromQuat, toQuat, resultQuat;
@@ -3919,7 +3919,7 @@ void TestNegate( void ) {
 		//fsrc1[i] = srnd.CRandomFloat() * 10.0f;
 	}
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	bestClocksGeneric = 0;
 	for ( i = 0; i < NUMTESTS; i++ ) {
@@ -3976,49 +3976,49 @@ void idSIMDProcessor::Test_f( const idCmdArgs &args ) {
 
 		if ( idStr::Icmp( argString, "MMX" ) == 0 ) {
 			if ( !( cpuid & CPUID_MMX ) ) {
-				common->Printf( "CPU does not support MMX\n" );
+				idLib::Printf( "CPU does not support MMX\n" );
 				return;
 			}
 			p_simd = new idSIMDProcessor_MMX;
 		} else if ( idStr::Icmp( argString, "3DNow" ) == 0 ) {
 			if ( !( cpuid & CPUID_MMX ) || !( cpuid & CPUID_3DNOW ) ) {
-				common->Printf( "CPU does not support MMX & 3DNow\n" );
+				idLib::Printf( "CPU does not support MMX & 3DNow\n" );
 				return;
 			}
 			p_simd = new idSIMDProcessor_3DNow;
 		} else if ( idStr::Icmp( argString, "SSE" ) == 0 ) {
 			if ( !( cpuid & CPUID_MMX ) || !( cpuid & CPUID_SSE ) ) {
-				common->Printf( "CPU does not support MMX & SSE\n" );
+				idLib::Printf( "CPU does not support MMX & SSE\n" );
 				return;
 			}
 			p_simd = new idSIMDProcessor_SSE;
 		} else if ( idStr::Icmp( argString, "SSE2" ) == 0 ) {
 			if ( !( cpuid & CPUID_MMX ) || !( cpuid & CPUID_SSE ) || !( cpuid & CPUID_SSE2 ) ) {
-				common->Printf( "CPU does not support MMX & SSE & SSE2\n" );
+				idLib::Printf( "CPU does not support MMX & SSE & SSE2\n" );
 				return;
 			}
 			p_simd = new idSIMDProcessor_SSE2;
 		} else if ( idStr::Icmp( argString, "SSE3" ) == 0 ) {
 			if ( !( cpuid & CPUID_MMX ) || !( cpuid & CPUID_SSE ) || !( cpuid & CPUID_SSE2 ) || !( cpuid & CPUID_SSE3 ) ) {
-				common->Printf( "CPU does not support MMX & SSE & SSE2 & SSE3\n" );
+				idLib::Printf( "CPU does not support MMX & SSE & SSE2 & SSE3\n" );
 				return;
 			}
 			p_simd = new idSIMDProcessor_SSE3();
 		} else if ( idStr::Icmp( argString, "AltiVec" ) == 0 ) {
 			if ( !( cpuid & CPUID_ALTIVEC ) ) {
-				common->Printf( "CPU does not support AltiVec\n" );
+				idLib::Printf( "CPU does not support AltiVec\n" );
 				return;
 			}
 			p_simd = new idSIMDProcessor_AltiVec();
 		} else {
-			common->Printf( "invalid argument, use: MMX, 3DNow, SSE, SSE2, SSE3, AltiVec\n" );
+			idLib::Printf( "invalid argument, use: MMX, 3DNow, SSE, SSE2, SSE3, AltiVec\n" );
 			return;
 		}
 	}
 
-	idLib::common->SetRefreshOnPrint( true );
+	idLib::SetRefreshOnPrint( true );
 
-	idLib::common->Printf( "using %s for SIMD processing\n", p_simd->GetName() );
+	idLib::Printf( "using %s for SIMD processing\n", p_simd->GetName() );
 
 	GetBaseClocks();
 
@@ -4047,7 +4047,7 @@ void idSIMDProcessor::Test_f( const idCmdArgs &args ) {
 	TestMatXLowerTriangularSolveTranspose();
 	TestMatXLDLTFactor();
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	TestBlendJoints();
 	TestConvertJointQuatsToJointMats();
@@ -4066,12 +4066,12 @@ void idSIMDProcessor::Test_f( const idCmdArgs &args ) {
 	TestGetSpecularTextureCoords();
 	TestCreateShadowCache();
 
-	idLib::common->Printf("====================================\n" );
+	idLib::Printf("====================================\n" );
 
 	TestSoundUpSampling();
 	TestSoundMixing();
 
-	idLib::common->SetRefreshOnPrint( false );
+	idLib::SetRefreshOnPrint( false );
 
 	if ( p_simd != processor ) {
 		delete p_simd;

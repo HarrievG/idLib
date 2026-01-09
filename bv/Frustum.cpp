@@ -885,8 +885,8 @@ bool idFrustum::IntersectsBounds( const idBounds &bounds ) const {
 		return false;
 	}
 
-	idSwap( indexPoints[2], indexPoints[3] );
-	idSwap( indexPoints[6], indexPoints[7] );
+	idSwapL( indexPoints[2], indexPoints[3] );
+	idSwapL( indexPoints[6], indexPoints[7] );
 
 	if ( LocalFrustumIntersectsBounds( indexPoints, bounds ) ) {
 		return true;
@@ -929,8 +929,8 @@ bool idFrustum::IntersectsBox( const idBox &box ) const {
 		return false;
 	}
 
-	idSwap( indexPoints[2], indexPoints[3] );
-	idSwap( indexPoints[6], indexPoints[7] );
+	idSwapL( indexPoints[2], indexPoints[3] );
+	idSwapL( indexPoints[6], indexPoints[7] );
 
 	if ( LocalFrustumIntersectsBounds( indexPoints, idBounds( -box.GetExtents(), box.GetExtents() ) ) ) {
 		return true;
@@ -1079,15 +1079,15 @@ bool idFrustum::IntersectsFrustum( const idFrustum &frustum ) const {
 		return false;
 	}
 
-	idSwap( indexPoints2[2], indexPoints2[3] );
-	idSwap( indexPoints2[6], indexPoints2[7] );
+	idSwapL( indexPoints2[2], indexPoints2[3] );
+	idSwapL( indexPoints2[6], indexPoints2[7] );
 
 	if ( LocalFrustumIntersectsFrustum( indexPoints2, ( localFrustum2.dNear > 0.0f ) ) ) {
 		return true;
 	}
 
-	idSwap( indexPoints1[2], indexPoints1[3] );
-	idSwap( indexPoints1[6], indexPoints1[7] );
+	idSwapL( indexPoints1[2], indexPoints1[3] );
+	idSwapL( indexPoints1[6], indexPoints1[7] );
 
 	if ( frustum.LocalFrustumIntersectsFrustum( indexPoints1, ( localFrustum1.dNear > 0.0f ) ) ) {
 		return true;
@@ -1141,8 +1141,8 @@ bool idFrustum::IntersectsWinding( const idWinding &winding ) const {
 		}
 	}
 
-	idSwap( indexPoints[2], indexPoints[3] );
-	idSwap( indexPoints[6], indexPoints[7] );
+	idSwapL( indexPoints[2], indexPoints[3] );
+	idSwapL( indexPoints[6], indexPoints[7] );
 
 	// test if any edges of the frustum intersect the winding
 	for ( i = 0; i < 4; i++ ) {

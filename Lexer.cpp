@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Platform.h"
 #include "Lexer.h"
+#include "FileSystem.h"
 
 #define PUNCTABLE
 
@@ -1299,6 +1300,30 @@ int idLexer::Parse1DMatrix( int x, float *m ) {
 	return true;
 }
 
+
+// RB begin
+int idLexer::Parse1DMatrixJSON( int x, float *m ) {
+	int i;
+
+	if ( !idLexer::ExpectTokenString( "[" ) ) {
+		return false;
+	}
+
+	for ( i = 0; i < x; i++ ) {
+		m[i] = idLexer::ParseFloat( );
+
+		if ( i < ( x - 1 ) && !idLexer::ExpectTokenString( "," ) ) {
+			return false;
+		}
+	}
+
+	if ( !idLexer::ExpectTokenString( "]" ) ) {
+		return false;
+	}
+	return true;
+}
+// RB end
+
 /*
 ================
 idLexer::Parse2DMatrix
@@ -1574,7 +1599,56 @@ idLexer::LoadFile
 ================
 */
 int idLexer::LoadFile( const char *filename, bool OSPath ) {
-	return false;
+	idFile *fp;
+	idStr pathname;
+	int length;
+	char *buf;
+
+	if ( idLexer::loaded ) {
+		idLib::Error( "idLexer::LoadFile: another script already loaded" );
+		return false;
+	}
+
+	if ( !OSPath && ( baseFolder[0] != '\0' ) ) {
+		// use idStr::Format to prevent buffer overflows in
+		pathname =  "%s/%s";
+		pathname.Format( baseFolder, filename );
+	} else {
+		pathname = filename;
+	}
+	if ( OSPath ) {
+		fp = fileSystem->OpenExplicitFileRead( pathname );
+	} else {
+		fp = fileSystem->OpenFileRead( pathname );
+	}
+	if ( !fp ) {
+		return false;
+	}
+	length = fp->Length( );
+	buf = ( char * ) Mem_Alloc( length + 1);
+	buf[length] = '\0';
+	fp->Read( buf, length );
+	idLexer::fileTime = fp->Timestamp( );
+	idLexer::filename = fp->GetFullPath( );
+	fileSystem->CloseFile( fp );
+
+	idLexer::buffer = buf;
+	idLexer::length = length;
+	// pointer in script buffer
+	idLexer::script_p = idLexer::buffer;
+	// pointer in script buffer before reading token
+	idLexer::lastScript_p = idLexer::buffer;
+	// pointer to end of script buffer
+	idLexer::end_p = &( idLexer::buffer[length] );
+
+	idLexer::tokenavailable = 0;
+	idLexer::line = 1;
+	idLexer::line = 1;
+	idLexer::lastline = 1;
+	idLexer::allocated = true;
+	idLexer::loaded = true;
+
+	return true;
 }
 
 /*

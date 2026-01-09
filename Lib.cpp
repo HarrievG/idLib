@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "Str.h"
+#include "StrStatic.h"
 #include "Dict.h"
 #include "math/Vector.h"
 #include "math/Polynomial.h"
@@ -369,6 +370,16 @@ void Warning( const char *fmt, ... ) {
 	printf( "\n" );
 }
 
+
+void Error( const char *fmt, ... ) {
+	va_list argptr;
+	printf( "!!=- ERROR -=!! :  " );
+	va_start( argptr, fmt );
+	vprintf( fmt, argptr );
+	va_end( argptr );
+	printf( "\n" );
+}
+
 void FatalError( const char *fmt, ... ) {
 	va_list argptr;
 	printf( "FATAL ERROR: " );
@@ -379,4 +390,88 @@ void FatalError( const char *fmt, ... ) {
 	exit( 1 );
 }
 
+
+
+/*
+================
+idLib::Init
+================
+*/
+void Init( ) {
+	assert( sizeof( bool ) == 1 );
+
+	//isMainThread = 1;
+	//mainThreadInitialized = 1; // note that the thread-local isMainThread is now valid
+
+	// initialize little/big endian conversion
+	//Swap_Init( );
+
+	// init string memory allocator
+	idStr::InitMemory( );
+
+	// initialize generic SIMD implementation
+	SIMD_Init( );
+
+	// initialize math
+	idMath::Init( );
+
+	// test idMatX
+	// idMatX::Test();
+
+	// test idPolynomial
+#ifdef _DEBUG
+	idPolynomial::Test( );
+#endif
+
+	// initialize the dictionary string pools
+	idDict::Init( );
 }
+
+
+}
+
+
+/*
+================
+PackColor
+================
+*/
+dword		 PackColor( const idVec4 &color ) {
+	byte dx = idMath::Ftob( color.x * 255.0f );
+	byte dy = idMath::Ftob( color.y * 255.0f );
+	byte dz = idMath::Ftob( color.z * 255.0f );
+	byte dw = idMath::Ftob( color.w * 255.0f );
+	return ( dx << 0 ) | ( dy << 8 ) | ( dz << 16 ) | ( dw << 24 );
+}
+
+/*
+================
+UnpackColor
+================
+*/
+void UnpackColor( const dword color, idVec4 &unpackedColor ) {
+	unpackedColor.Set(
+		( ( color >> 0 ) & 255 ) * ( 1.0f / 255.0f ), ( ( color >> 8 ) & 255 ) * ( 1.0f / 255.0f ), ( ( color >> 16 ) & 255 ) * ( 1.0f / 255.0f ), ( ( color >> 24 ) & 255 ) * ( 1.0f / 255.0f ) );
+}
+
+/*
+================
+PackColor
+================
+*/
+dword PackColor( const idVec3 &color ) {
+	byte dx = idMath::Ftob( color.x * 255.0f );
+	byte dy = idMath::Ftob( color.y * 255.0f );
+	byte dz = idMath::Ftob( color.z * 255.0f );
+	return ( dx << 0 ) | ( dy << 8 ) | ( dz << 16 );
+}
+
+/*
+================
+UnpackColor
+================
+*/
+void UnpackColor( const dword color, idVec3 &unpackedColor ) {
+	unpackedColor.Set( ( ( color >> 0 ) & 255 ) * ( 1.0f / 255.0f ), ( ( color >> 8 ) & 255 ) * ( 1.0f / 255.0f ), ( ( color >> 16 ) & 255 ) * ( 1.0f / 255.0f ) );
+}
+

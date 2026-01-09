@@ -1482,7 +1482,7 @@ void Mem_DumpCompressed_f( const idCmdArgs &args ) {
 		} else if ( arg[0] == 'f' ) {
 			numFrames = atoi( arg + 1 );
 		} else {
-			idLib::common->Printf( "memoryDumpCompressed [options] [filename]\n"
+			idLib::idLib::Printf( "memoryDumpCompressed [options] [filename]\n"
 						"options:\n"
 						"  -s     sort on size\n"
 						"  -l     sort on location\n"
@@ -1574,7 +1574,7 @@ void Mem_FreeDebugMemory( void *p, const char *fileName, const int lineNumber, c
 	m = (debugMemory_t *) ( ( (byte *) p ) - sizeof( debugMemory_t ) );
 
 	if ( m->size < 0 ) {
-		idLib::common->FatalError( "memory freed twice" );
+		idLib::idLib::FatalError( "memory freed twice" );
 	}
 
 	Mem_UpdateFreeStats( m->size );
@@ -1697,7 +1697,7 @@ void Mem_Shutdown( void ) {
 
 	if ( mem_leakName[0] != '\0' ) {
 		Mem_DumpCompressed( va( "%s_leak_size.txt", mem_leakName ), MEMSORT_SIZE, 0 );
-		Mem_DumpCompressed( va( "%s_leak_location.txt", mem_leakName ), MEMSORT_LOCATION, 0 );
+		Mem_DumpCompressed( idStr(va( "%s_leak_location.txt", mem_leakName )), MEMSORT_LOCATION, 0 );
 	}
 
 	idHeap *m = mem_heap;

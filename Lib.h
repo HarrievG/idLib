@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Platform.h"
 #include "CmdArgs.h"
+
 /*
 ===============================================================================
 
@@ -78,13 +79,23 @@ public:
 };
 
 namespace idLib {
+	void	Init( );
 	void	ParseCommandLine( int argc, const char* const* argv );
 	void 	AddStartupCommands();
 	void 	SetStartupVariable( const char* match );
 
 	void	Printf( const char *fmt, ... );
 	void	Warning( const char *fmt, ... );
+	void	Error( const char *fmt, ... );
 	void	FatalError( const char *fmt, ... );
+
 }
+
+
+// packs color floats in the range [0,1] into an integer
+dword				PackColor( const idVec3 &color );
+void				UnpackColor( const dword color, idVec3 &unpackedColor );
+dword				PackColor( const idVec4 &color );
+void				UnpackColor( const dword color, idVec4 &unpackedColor );
 
 #endif	/* !__LIB_H__ */

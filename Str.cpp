@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Str.h"
 #include "math/Math.h"
+#include "Lib.h"
 
 struct Vec4 {
 	float x, y, z, w;
@@ -84,6 +85,13 @@ void idStr::ReAllocate( int amount, bool keepold ) {
 	int		newsize;
 	int		mod;
 
+	
+	// --- FIX START ---
+	// Store the static state BEFORE we overwrite 'alloced' below.
+	// If the current buffer is static (part of idStrStatic), we must NOT delete it.
+	bool wasStatic = IsStatic( );
+	// --- FIX END ---
+	
 	//assert( data );
 	assert( amount > 0 );
 
@@ -102,9 +110,12 @@ void idStr::ReAllocate( int amount, bool keepold ) {
 		strcpy( newbuffer, data );
 	}
 
-	if ( data && data != baseBuffer ) {
-		delete [] data;
+	// --- FIX START ---
+	// Only delete the old data if it wasn't the base buffer AND it wasn't static memory.
+	if ( data && data != baseBuffer && !wasStatic ) {
+		delete[] data;
 	}
+	// --- FIX END ---
 
 	data = newbuffer;
 }
@@ -519,7 +530,9 @@ idStr::StripLeading
 void idStr::StripTrailing( const char *string ) {
 	int l;
 
-	l = strlen( string );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	l = ( int ) strlen( string );
+	// RB end
 	if ( l > 0 ) {
 		while ( ( len >= l ) && !Cmpn( string, data + len - l, l ) ) {
 			len -= l;
@@ -644,6 +657,78 @@ idStr idStr::Mid( int start, int len ) const {
 
 	result.Append( &data[ start ], len );
 	return result;
+}
+
+
+/*
+============
+va
+
+does a varargs printf into a temp buffer
+NOTE: not thread safe
+============
+*/
+char *va( const char *fmt, ... ) {
+	va_list argptr;
+	static int index = 0;
+	static char string[4][16384];	// in case called by nested functions
+	char *buf;
+
+	buf = string[index];
+	index = ( index + 1 ) & 3;
+
+	va_start( argptr, fmt );
+	vsprintf( buf, fmt, argptr );
+	va_end( argptr );
+
+	return buf;
+}
+
+#define MAX_PRINT_MSG	 16384 // buffer size for our various printf routines
+/*
+========================
+idStr::Format
+
+perform a threadsafe sprintf to the string
+========================
+*/
+void idStr::Format( const char *fmt, ... ) {
+	va_list argptr;
+	char	text[MAX_PRINT_MSG];
+
+	va_start( argptr, fmt );
+	// SRS - using idStr::vsnPrintf() guarantees size and null termination
+	int len = idStr::vsnPrintf( text, sizeof( text ), fmt, argptr );
+	va_end( argptr );
+
+	if ( len < 0 ) {
+		idLib::FatalError( "Tried to set a large buffer using %s", fmt );
+	}
+	*this = text;
+}
+
+/*
+========================
+idStr::FormatInt
+
+Formats integers with commas for readability.
+========================
+*/
+idStr idStr::FormatInt( const int num, bool isCash ) {
+	idStr val = va( "%d", num );
+	int	  len = val.Length( );
+	for ( int i = 0; i < ( ( len - 1 ) / 3 ); i++ ) {
+		int pos = val.Length( ) - ( ( i + 1 ) * 3 + i );
+		if ( pos > 1 || val[0] != '-' ) {
+			val.Insert( ',', pos );
+		}
+	}
+
+	if ( isCash ) {
+		val.Insert( '$', val[0] == '-' ? 1 : 0 );
+	}
+
+	return val;
 }
 
 /*
@@ -1347,11 +1432,11 @@ Safe strncpy that ensures a trailing zero
 */
 void idStr::Copynz( char *dest, const char *src, int destsize ) {
 	if ( !src ) {
-		//idLib::common->Warning( "idStr::Copynz: NULL src" );
+		idLib::Warning( "idStr::Copynz: NULL src" );
 		return;
 	}
 	if ( destsize < 1 ) {
-		//idLib::common->Warning( "idStr::Copynz: destsize < 1" );
+		idLib::Warning( "idStr::Copynz: destsize < 1" );
 		return;
 	}
 
@@ -1371,7 +1456,7 @@ void idStr::Append( char *dest, int size, const char *src ) {
 
 	l1 = strlen( dest );
 	if ( l1 >= size ) {
-		//idLib::common->Error( "idStr::Append: already overflowed" );
+		idLib::Error( "idStr::Append: already overflowed" );
 	}
 	idStr::Copynz( dest + l1, src, size - l1 );
 }
@@ -1592,10 +1677,10 @@ int idStr::snPrintf( char *dest, int size, const char *fmt, ...) {
 	len = vsprintf( buffer, fmt, argptr );
 	va_end( argptr );
 	if ( len >= sizeof( buffer ) ) {
-		//idLib::common->Error( "idStr::snPrintf: overflowed buffer" );
+		idLib::Error( "idStr::snPrintf: overflowed buffer" );
 	}
 	if ( len >= size ) {
-		//idLib::common->Warning( "idStr::snPrintf: overflow of %i in %i\n", len, size );
+		idLib::Warning( "idStr::snPrintf: overflow of %i in %i\n", len, size );
 		len = size;
 	}
 	idStr::Copynz( dest, buffer, size );
@@ -1678,29 +1763,7 @@ int vsprintf( idStr &string, const char *fmt, va_list argptr ) {
 	return l;
 }
 
-/*
-============
-va
 
-does a varargs printf into a temp buffer
-NOTE: not thread safe
-============
-*/
-char *va( const char *fmt, ... ) {
-	va_list argptr;
-	static int index = 0;
-	static char string[4][16384];	// in case called by nested functions
-	char *buf;
-
-	buf = string[index];
-	index = (index + 1) & 3;
-
-	va_start( argptr, fmt );
-	vsprintf( buf, fmt, argptr );
-	va_end( argptr );
-
-	return buf;
-}
 
 
 

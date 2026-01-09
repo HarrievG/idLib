@@ -380,7 +380,7 @@ void idSurface_Patch::GenerateNormals( void ) {
 				count++;
 			}
 			if ( count == 0 ) {
-				//idLib::common->Printf("bad normal\n");
+				idLib::Printf("bad normal\n");
 				count = 1;
 			}
 			sum.Normalize( );
