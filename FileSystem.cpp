@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "CVarSystem.h"
 #include <SDL3/SDL.h>
 #include <memory>
+#include "StrStatic.h"
+#include "containers/StaticList.h"
 
 // Globals
 idCVar fs_basepath( "fs_basepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
@@ -271,7 +273,63 @@ const char* idFileSystemLocal::RelativePathToOSPath( const char* relativePath, c
 }
 
 const char* idFileSystemLocal::OSPathToRelativePath( const char* OSPath ) {
-    return OSPath;
+	if ( ( OSPath[0] != '/' ) && ( OSPath[0] != '\\' ) && ( idStr::FindChar( OSPath, ':' ) < 0 ) ) {
+		// No colon and it doesn't start with a slash... it must already be a relative path
+		return OSPath;
+	}
+	// RB: bumped from 32 to 128
+	idStaticList<idStrStatic<128>, 5> basePaths;
+	basePaths.Append( "base" );
+	if ( fs_game.GetString( )[0] != 0 ) {
+		basePaths.Append( fs_game.GetString( ) );
+	}
+	if ( fs_game_base.GetString( )[0] != 0 ) {
+		basePaths.Append( fs_game_base.GetString( ) );
+	}
+	idStaticList<int, MAX_OSPATH> slashes;
+	for ( const char *s = OSPath; *s != 0; s++ ) {
+		if ( *s == '/' || *s == '\\' ) {
+			slashes.Append( s - OSPath );
+		}
+	}
+	for ( int n = 0; n < slashes.Num( ) - 1; n++ ) {
+		const char *start = OSPath + slashes[n] + 1;
+		const char *end = OSPath + slashes[n + 1];
+		int			componentLength = end - start;
+		if ( componentLength == 0 ) {
+			continue;
+		}
+		for ( int i = 0; i < basePaths.Num( ); i++ ) {
+			if ( componentLength != basePaths[i].Length( ) ) {
+				continue;
+			}
+			if ( basePaths[i].Icmpn( start, componentLength ) == 0 ) {
+				// There are some files like:
+				// W:\d3xp\base\...
+				// But we can't search backwards because there are others like:
+				// W:\doom3\base\models\mapobjects\base\...
+				// So instead we check for 2 base paths next to each other and take the 2nd in that case
+				if ( n < slashes.Num( ) - 2 ) {
+					const char *start2 = OSPath + slashes[n + 1] + 1;
+					const char *end2 = OSPath + slashes[n + 2];
+					int			componentLength2 = end2 - start2;
+					if ( componentLength2 > 0 ) {
+						for ( int j = 0; j < basePaths.Num( ); j++ ) {
+							if ( componentLength2 != basePaths[j].Length( ) ) {
+								continue;
+							}
+							if ( basePaths[j].Icmpn( start2, basePaths[j].Length( ) ) == 0 ) {
+								return end2 + 1;
+							}
+						}
+					}
+				}
+				return end + 1;
+			}
+		}
+	}
+	idLib::Warning( "OSPathToRelativePath failed on %s", OSPath );
+	return OSPath;
 }
 
 // File Operations (SDL3)
