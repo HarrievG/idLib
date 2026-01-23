@@ -245,6 +245,10 @@ public:
 	// Returns NULL if there is no CVar with the given name.
 	virtual idCVar* 		Find( const char* name ) = 0;
 
+	// Expose iteration for tooling
+	virtual int				GetNumCVars( ) const = 0;
+	virtual idCVar*			GetCVarByIndex( int index ) = 0;
+
 	// Sets the value of a CVar by name.
 	virtual void			SetCVarString( const char* name, const char* value, int flags = 0 ) = 0;
 	virtual void			SetCVarBool( const char* name, const bool value, int flags = 0 ) = 0;

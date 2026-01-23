@@ -522,6 +522,9 @@ public:
 
 	virtual idCVar* 		Find( const char* name );
 
+	virtual int				GetNumCVars( ) const;
+	virtual idCVar*			GetCVarByIndex( int index );
+
 	virtual void			SetCVarString( const char* name, const char* value, int flags = 0 );
 	virtual void			SetCVarBool( const char* name, const bool value, int flags = 0 );
 	virtual void			SetCVarInteger( const char* name, const int value, int flags = 0 );
@@ -742,6 +745,29 @@ idCVar* idCVarSystemLocal::Find( const char* name )
 {
 	return FindInternal( name );
 }
+
+
+/*
+============
+idCVarSystemLocal::GetNumCVars
+============
+*/
+int idCVarSystemLocal::GetNumCVars( ) const {
+	return cvars.Num( );
+}
+
+/*
+============
+idCVarSystemLocal::GetCVarByIndex
+============
+*/
+idCVar *idCVarSystemLocal::GetCVarByIndex( int index ) {
+	if ( index >= 0 && index < cvars.Num( ) ) {
+		return cvars[index];
+	}
+	return NULL;
+}
+
 
 /*
 ============

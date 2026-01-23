@@ -100,6 +100,10 @@ public:
 	virtual void			ExecuteCommandText( const char* text );
 	virtual void			AppendCommandText( const char* text );
 
+	virtual int				GetNumCommands( void ) ;
+	virtual const char *	GetCommandName( int index ) ;
+	virtual const char *	GetCommandDescription( int index ) ;
+
 	virtual void			BufferCommandText( cmdExecution_t exec, const char* text );
 	virtual void			ExecuteCommandBuffer();
 
@@ -960,4 +964,42 @@ bool idCmdSystemLocal::PostReloadEngine()
 	BufferCommandArgs( CMD_EXEC_APPEND, postReload );
 	postReload.Clear();
 	return true;
+}
+
+int idCmdSystemLocal::GetNumCommands( void ) {
+	int count = 0;
+	for ( const commandDef_t *cmd = commands; cmd; cmd = cmd->next ) {
+		count++;
+	}
+	return count;
+}
+
+const char *idCmdSystemLocal::GetCommandName( int index ) {
+	if ( index >= 0 && index < GetNumCommands() ) {
+		int count = 0;
+		 const commandDef_t *cmd = nullptr;
+		for ( cmd = commands; cmd; cmd = cmd->next ) {
+			if ( count == index)
+				break;
+			count++;
+		}
+		if ( cmd )
+			return cmd->name;
+	}
+	return "";
+}
+
+const char *idCmdSystemLocal::GetCommandDescription( int index ) {
+	if ( index >= 0 && index < GetNumCommands( ) ) {
+		int count = 0;
+		const commandDef_t *cmd = nullptr;
+		for ( cmd = commands; cmd; cmd = cmd->next ) {
+			if ( count == index )
+				break;
+			count++;
+		}
+		if ( cmd )
+			return cmd->description;
+	}
+	return "";
 }

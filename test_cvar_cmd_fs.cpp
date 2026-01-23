@@ -108,8 +108,8 @@ int main( int argc, char* argv[] ) {
 	cmdSystem->ExecuteCommandText( "set fs_savepath C:/Users/06162/Saved Games/id Software/RBDOOM 3 BFG");
 
     // Initialize File System
-    fileSystem->Init();	
-
+    fileSystem->Init();
+	
     // Register a CVar
     idCVar testCVar( "test_cvar", "10", CVAR_SYSTEM | CVAR_INTEGER, "A test cvar" );
 
@@ -137,17 +137,42 @@ int main( int argc, char* argv[] ) {
     idLib::Printf("Listing files in root:\n");
     cmdSystem->ExecuteCommandText( "dir . " );
 	cmdSystem->ExecuteCommandText( "dir / / " );
+
     // Run extended idStr tests
     TestIdStr();
+
+	idLib::Printf( "- CVARS: \n" );
+	int numCVars = cvarSystem->GetNumCVars( );
+	for ( int i = 0; i < numCVars; i++ ) {
+		idCVar *cvar = cvarSystem->GetCVarByIndex( i );
+		if ( !cvar ) continue;
+
+		//if (!m_cvarFilter.PassFilter(cvar->GetName())) continue;
+
+		idLib::Printf( "%s \n", cvar->GetName( ) );
+	}
+	idLib::Printf( "- COMMANDS: \n" );
+	int numCmds = cmdSystem->GetNumCommands( );
+	for ( int i = 0; i < numCmds; i++ ) {
+		const char *name = cmdSystem->GetCommandName( i );
+		const char *desc = cmdSystem->GetCommandDescription( i );
+
+		//if ( !name || !m_cmdFilter.PassFilter( name ) ) continue;
+
+		idLib::Printf( "%s \n  -> %s \n", name , desc );
+	}
 
     // Verify dmap linkage
     idCmdArgs args;
 
-	
 	args.AppendArg("dmap" );
 	args.AppendArg("obj" );
+	args.AppendArg("glview" );
 	args.AppendArg("test.map" );
     Rogmap_f( args ); // Just verifying it links, don't actually run it without args
+
+
+
 
 	// Shutdown
 	fileSystem->Shutdown( false );

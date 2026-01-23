@@ -140,6 +140,11 @@ public:
 	virtual void		ExecuteCommandText( const char* text ) = 0;
 	virtual void		AppendCommandText( const char* text ) = 0;
 
+	// Expose command list for tooling
+	virtual int			GetNumCommands( void ) = 0;
+	virtual const char *GetCommandName( int index ) = 0;
+	virtual const char *GetCommandDescription( int index ) = 0;
+
 	// Adds command text to the command buffer, does not add a final \n
 	virtual void		BufferCommandText( cmdExecution_t exec, const char* text ) = 0;
 	// Pulls off \n \r or ; terminated lines of text from the command buffer and
