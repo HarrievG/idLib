@@ -14,6 +14,10 @@
 // We use a simple check macro that exits if false
 #define CHECK( x ) if ( !(x) ) { std::cerr << "TEST FAILED: " << #x << " at " << __FILE__ << ":" << __LINE__ << std::endl; exit(1); }
 
+
+// Register a CVar
+idCVar testCVar( "test_cvar", "10", CVAR_SYSTEM | CVAR_INTEGER | CVAR_ARCHIVE, "A test cvar" );
+
 void TestCommand( const idCmdArgs& args ) {
     idLib::Printf("Test Command Executed with %d args.\n", args.Argc());
     for( int i=0; i<args.Argc(); i++ ) {
@@ -110,13 +114,18 @@ int main( int argc, char* argv[] ) {
     // Initialize File System
     fileSystem->Init();
 	
-    // Register a CVar
-    idCVar testCVar( "test_cvar", "10", CVAR_SYSTEM | CVAR_INTEGER, "A test cvar" );
+	
+
+	idLib::Printf("Test CVar initial value: %d\n", testCVar.GetInteger());
+
+	cmdSystem->ExecuteCommandText( "exec default.cfg");
+	cmdSystem->ExecuteCommandBuffer( );
+	cvarSystem->ClearModifiedFlags( CVAR_ARCHIVE );
 
     if ( testCVar.GetInteger() != 10 ) {
-        idLib::Printf("FAILURE: testCVar.GetInteger() = %d (expected 10). String value: '%s'\n", testCVar.GetInteger(), testCVar.GetString());
+        idLib::Printf("testCVar.GetInteger() = %d (expected 10,was it already changed?). String value: '%s'\n", testCVar.GetInteger(), testCVar.GetString());
     }
-    CHECK( testCVar.GetInteger() == 10 );
+
     idLib::Printf("Test CVar initial value: %d\n", testCVar.GetInteger());
 
     // Register a command
@@ -126,9 +135,9 @@ int main( int argc, char* argv[] ) {
     cmdSystem->ExecuteCommandText( "testcmd arg1 arg2" );
 
     // Change CVar via command
-    cmdSystem->ExecuteCommandText( "set test_cvar 20" );
+    cmdSystem->ExecuteCommandText( "set test_cvar 2000" );
 
-    CHECK( testCVar.GetInteger() == 20 );
+    CHECK( testCVar.GetInteger() == 2000 );
     idLib::Printf("Test CVar new value: %d\n", testCVar.GetInteger());
 
 	cmdSystem->ExecuteCommandText( "path");
@@ -162,6 +171,7 @@ int main( int argc, char* argv[] ) {
 		idLib::Printf( "%s \n  -> %s \n", name , desc );
 	}
 
+	idLib::WriteConfigToFile( "default.cfg" );
     // Verify dmap linkage
     idCmdArgs args;
 
@@ -172,7 +182,7 @@ int main( int argc, char* argv[] ) {
     Rogmap_f( args ); // Just verifying it links, don't actually run it without args
 
 
-
+	
 
 	// Shutdown
 	fileSystem->Shutdown( false );

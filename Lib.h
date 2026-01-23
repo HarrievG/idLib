@@ -84,6 +84,8 @@ namespace idLib {
 	void 	AddStartupCommands();
 	void 	SetStartupVariable( const char* match );
 
+	void WriteConfigToFile( const char *filename );
+
 	void	Printf( const char *fmt, ... );
 	void	Warning( const char *fmt, ... );
 	void	Error( const char *fmt, ... );

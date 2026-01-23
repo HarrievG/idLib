@@ -11,6 +11,8 @@
 #include <SDL3/SDL.h>
 #include "CmdSystem.h"
 #include "CVarSystem.h"
+#include "FileSystem.h"
+
 /*
 ===============================================================================
 
@@ -271,161 +273,171 @@ int			com_numConsoleLines;
 idCmdArgs	com_consoleLines[MAX_CONSOLE_LINES];
 
 
-void AddStartupCommands()
-{
-	// quote every token, so args with semicolons can work
-	for( int i = 0; i < com_numConsoleLines; i++ )
+	void AddStartupCommands()
 	{
-		if( !com_consoleLines[i].Argc() )
+		// quote every token, so args with semicolons can work
+		for( int i = 0; i < com_numConsoleLines; i++ )
 		{
-			continue;
+			if( !com_consoleLines[i].Argc() )
+			{
+				continue;
+			}
+			// directly as tokenized so nothing gets screwed
+			cmdSystem->BufferCommandArgs( CMD_EXEC_APPEND, com_consoleLines[i] );
 		}
-		// directly as tokenized so nothing gets screwed
-		cmdSystem->BufferCommandArgs( CMD_EXEC_APPEND, com_consoleLines[i] );
 	}
-}
 
 
-void ParseCommandLine( int argc, const char* const* argv )
-{
-	int i, current_count;
-
-	com_numConsoleLines = 0;
-	current_count = 0;
-	// API says no program path
-	for( i = 0; i < argc; i++ )
+	void ParseCommandLine( int argc, const char* const* argv )
 	{
-		if( idStr::Icmp( argv[ i ], "+connect_lobby" ) == 0 )
+		int i, current_count;
+
+		com_numConsoleLines = 0;
+		current_count = 0;
+		// API says no program path
+		for( i = 0; i < argc; i++ )
 		{
-			// Handle Steam bootable invites.
-			// RB begin
-// #if defined(_WIN32)
-// 			session->HandleBootableInvite( _atoi64( argv[ i + 1 ] ) );
-// #else
-// 			session->HandleBootableInvite( atol( argv[ i + 1 ] ) );
-// #endif
-			// RB end
-		}
-		else if( argv[ i ][ 0 ] == '+' )
-		{
-			com_numConsoleLines++;
-			com_consoleLines[ com_numConsoleLines - 1 ].AppendArg( argv[ i ] + 1 );
-		}
-		else
-		{
-			if( !com_numConsoleLines )
+			if( idStr::Icmp( argv[ i ], "+connect_lobby" ) == 0 )
+			{
+				// Handle Steam bootable invites.
+				// RB begin
+	// #if defined(_WIN32)
+	// 			session->HandleBootableInvite( _atoi64( argv[ i + 1 ] ) );
+	// #else
+	// 			session->HandleBootableInvite( atol( argv[ i + 1 ] ) );
+	// #endif
+				// RB end
+			}
+			else if( argv[ i ][ 0 ] == '+' )
 			{
 				com_numConsoleLines++;
+				com_consoleLines[ com_numConsoleLines - 1 ].AppendArg( argv[ i ] + 1 );
 			}
-			com_consoleLines[ com_numConsoleLines - 1 ].AppendArg( argv[ i ] );
+			else
+			{
+				if( !com_numConsoleLines )
+				{
+					com_numConsoleLines++;
+				}
+				com_consoleLines[ com_numConsoleLines - 1 ].AppendArg( argv[ i ] );
+			}
 		}
 	}
-}
 
 
-/*
-==================
-StartupVariable
+	/*
+	==================
+	StartupVariable
 
-Searches for command line parameters that are set commands.
-If match is not NULL, only that cvar will be looked for.
-That is necessary because cddir and basedir need to be set
-before the filesystem is started, but all other sets should
-be after execing the config and default.
-==================
-*/
-void SetStartupVariable( const char* match )
-{
-	int i = 0;
-	while(	i < com_numConsoleLines )
+	Searches for command line parameters that are set commands.
+	If match is not NULL, only that cvar will be looked for.
+	That is necessary because cddir and basedir need to be set
+	before the filesystem is started, but all other sets should
+	be after execing the config and default.
+	==================
+	*/
+	void SetStartupVariable( const char* match )
 	{
-		if( strcmp( com_consoleLines[ i ].Argv( 0 ), "set" ) != 0 )
+		int i = 0;
+		while(	i < com_numConsoleLines )
 		{
+			if( strcmp( com_consoleLines[ i ].Argv( 0 ), "set" ) != 0 )
+			{
+				i++;
+				continue;
+			}
+			const char* s = com_consoleLines[ i ].Argv( 1 );
+
+			if( !match || !idStr::Icmp( s, match ) )
+			{
+				cvarSystem->SetCVarString( s, com_consoleLines[ i ].Argv( 2 ) );
+			}
 			i++;
-			continue;
 		}
-		const char* s = com_consoleLines[ i ].Argv( 1 );
-
-		if( !match || !idStr::Icmp( s, match ) )
-		{
-			cvarSystem->SetCVarString( s, com_consoleLines[ i ].Argv( 2 ) );
-		}
-		i++;
 	}
-}
 
-void Printf( const char *fmt, ... ) {
-	va_list argptr;
-	va_start( argptr, fmt );
-	vprintf( fmt, argptr );
-	va_end( argptr );
-}
+	void WriteConfigToFile( const char *filename ) {
+		idFile *f = fileSystem->OpenFileWrite( filename );
+		if ( !f ) {
+			Printf( "Couldn't write %s.\n", filename );
+			return;
+		}
+		cvarSystem->WriteFlaggedVariables( CVAR_ARCHIVE, "set", f );
+		fileSystem->CloseFile( f );
+	}
 
-void Warning( const char *fmt, ... ) {
-	va_list argptr;
-	printf( "WARNING: " );
-	va_start( argptr, fmt );
-	vprintf( fmt, argptr );
-	va_end( argptr );
-	printf( "\n" );
-}
+	void Printf( const char *fmt, ... ) {
+		va_list argptr;
+		va_start( argptr, fmt );
+		vprintf( fmt, argptr );
+		va_end( argptr );
+	}
 
-
-void Error( const char *fmt, ... ) {
-	va_list argptr;
-	printf( "!!=- ERROR -=!! :  " );
-	va_start( argptr, fmt );
-	vprintf( fmt, argptr );
-	va_end( argptr );
-	printf( "\n" );
-}
-
-void FatalError( const char *fmt, ... ) {
-	va_list argptr;
-	printf( "FATAL ERROR: " );
-	va_start( argptr, fmt );
-	vprintf( fmt, argptr );
-	va_end( argptr );
-	printf( "\n" );
-	exit( 1 );
-}
+	void Warning( const char *fmt, ... ) {
+		va_list argptr;
+		printf( "WARNING: " );
+		va_start( argptr, fmt );
+		vprintf( fmt, argptr );
+		va_end( argptr );
+		printf( "\n" );
+	}
 
 
+	void Error( const char *fmt, ... ) {
+		va_list argptr;
+		printf( "!!=- ERROR -=!! :  " );
+		va_start( argptr, fmt );
+		vprintf( fmt, argptr );
+		va_end( argptr );
+		printf( "\n" );
+	}
 
-/*
-================
-idLib::Init
-================
-*/
-void Init( ) {
-	assert( sizeof( bool ) == 1 );
+	void FatalError( const char *fmt, ... ) {
+		va_list argptr;
+		printf( "FATAL ERROR: " );
+		va_start( argptr, fmt );
+		vprintf( fmt, argptr );
+		va_end( argptr );
+		printf( "\n" );
+		exit( 1 );
+	}
 
-	//isMainThread = 1;
-	//mainThreadInitialized = 1; // note that the thread-local isMainThread is now valid
 
-	// initialize little/big endian conversion
-	//Swap_Init( );
 
-	// init string memory allocator
-	idStr::InitMemory( );
+	/*
+	================
+	idLib::Init
+	================
+	*/
+	void Init( ) {
+		assert( sizeof( bool ) == 1 );
 
-	// initialize generic SIMD implementation
-	SIMD_Init( );
+		//isMainThread = 1;
+		//mainThreadInitialized = 1; // note that the thread-local isMainThread is now valid
 
-	// initialize math
-	idMath::Init( );
+		// initialize little/big endian conversion
+		//Swap_Init( );
 
-	// test idMatX
-	// idMatX::Test();
+		// init string memory allocator
+		idStr::InitMemory( );
 
-	// test idPolynomial
-#ifdef _DEBUG
-	idPolynomial::Test( );
-#endif
+		// initialize generic SIMD implementation
+		SIMD_Init( );
 
-	// initialize the dictionary string pools
-	idDict::Init( );
-}
+		// initialize math
+		idMath::Init( );
+
+		// test idMatX
+		// idMatX::Test();
+
+		// test idPolynomial
+	#ifdef _DEBUG
+		idPolynomial::Test( );
+	#endif
+
+		// initialize the dictionary string pools
+		idDict::Init( );
+	}
 
 
 }
