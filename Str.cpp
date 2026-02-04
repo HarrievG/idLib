@@ -126,7 +126,7 @@ idStr::FreeData
 ============
 */
 void idStr::FreeData( void ) {
-	if ( data && data != baseBuffer ) {
+	if ( data && data != baseBuffer && !IsStatic( ) ) {
 		delete[] data;
 		data = baseBuffer;
 	}
