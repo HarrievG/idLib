@@ -159,11 +159,8 @@ idInternalCVar::~idInternalCVar
 */
 idInternalCVar::~idInternalCVar()
 {
-    // Mem_Free is not available, use free.
-    // The original code used Mem_Alloc/Mem_Free. I'll use malloc/free for valueStrings.
-    // Wait, valueStrings is an array of pointers to strings.
     if (valueStrings) {
-        free( (void*)valueStrings );
+        Mem_Free( (void*)valueStrings );
     }
 	valueStrings = NULL;
 }
@@ -191,8 +188,7 @@ const char** idInternalCVar::CopyValueStrings( const char** strings )
 		totalLength += idStr::Length( strings[i] ) + 1;
 	}
 
-    // Using malloc instead of Mem_Alloc
-	ptr = ( const char** ) malloc( ( i + 1 ) * sizeof( char* ) + totalLength );
+	ptr = ( const char** ) Mem_Alloc( ( i + 1 ) * sizeof( char* ) + totalLength );
 	str = ( char* )( ( ( byte* )ptr ) + ( i + 1 ) * sizeof( char* ) );
 
 	for( i = 0; strings[i] != NULL; i++ )
@@ -243,7 +239,7 @@ void idInternalCVar::Update( const idCVar* cvar )
 		description = descriptionString.c_str();
 		valueMin = cvar->GetMinValue();
 		valueMax = cvar->GetMaxValue();
-		if (valueStrings) free((void*)valueStrings);
+		if (valueStrings) Mem_Free((void*)valueStrings);
 		valueStrings = CopyValueStrings( cvar->GetValueStrings() );
 		valueCompletion = cvar->GetValueCompletion();
 		UpdateValue();

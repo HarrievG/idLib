@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <cstring>
 
 static char *CopyString( const char *in ) {
-	char *out = (char *)malloc( strlen( in ) + 1 );
+	char *out = (char *)Mem_Alloc( strlen( in ) + 1 );
 	strcpy( out, in );
 	return out;
 }

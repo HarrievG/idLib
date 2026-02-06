@@ -1181,7 +1181,7 @@ void Mem_DumpCompressed_f( const idCmdArgs &args ) {
 Mem_Init
 ==================
 */
-void Mem_Init( void ) {
+volatile void Mem_Init( void ) {
 	mem_heap = new idHeap;
 	Mem_ClearFrameStats();
 }
@@ -1684,7 +1684,7 @@ char *Mem_CopyString( const char *in, const char *fileName, const int lineNumber
 Mem_Init
 ==================
 */
-void Mem_Init( void ) {
+volatile void Mem_Init( void ) {
 	mem_heap = new idHeap;
 }
 

@@ -184,7 +184,7 @@ void idFileSystemLocal::Init() {
         const char *base = SDL_GetBasePath();
 		fs_basepath.SetString( base ? base : "." );
         if ( base ) {
-            SDL_free( (void*)base );
+            Mem_Free( (void*)base );
         }
 	}
 	if ( fs_savepath.GetString()[0] == '\0' )
@@ -192,7 +192,7 @@ void idFileSystemLocal::Init() {
         const char *pref = SDL_GetPrefPath( "idSoftware", "Doom3" ); // Example org/app
 		fs_savepath.SetString( pref ? pref : "." );
         if ( pref ) {
-            SDL_free( (void*)pref );
+			Mem_Free( (void*)pref );
         }
 	}
 
@@ -391,7 +391,7 @@ int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIM
         return len;
     }
 
-    byte* buf = (byte*)malloc( len + 1 );
+    byte* buf = (byte*)Mem_Alloc( len + 1 );
     f->Read( buf, len );
     buf[len] = 0;
     *buffer = buf;
@@ -401,7 +401,7 @@ int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIM
 }
 
 void idFileSystemLocal::FreeFile( void* buffer ) {
-    free( buffer );
+    Mem_Free( buffer );
 }
 
 int idFileSystemLocal::WriteFile( const char* relativePath, const void* buffer, int size, const char* basePath ) {
@@ -465,7 +465,7 @@ idFile* idFileSystemLocal::OpenFileReadMemory( const char* relativePath, bool al
     if ( !f ) return NULL;
 
     int len = f->Length();
-    char* buf = (char*)malloc( len + 1 );
+    char* buf = (char*)Mem_Alloc( len + 1 );
     f->Read( buf, len );
     buf[len] = 0;
 

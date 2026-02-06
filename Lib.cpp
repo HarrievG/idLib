@@ -417,7 +417,7 @@ idCmdArgs	com_consoleLines[MAX_CONSOLE_LINES];
 
 		// initialize little/big endian conversion
 		//Swap_Init( );
-
+		Mem_Init();
 		// init string memory allocator
 		idStr::InitMemory( );
 

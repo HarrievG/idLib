@@ -26,15 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include <cstdarg>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <cmath>
-
+#include "precompiled.h"
+#pragma hdrstop
 #include "Parser.h"
-#include "Platform.h"
+
 
 //#define DEBUG_EVAL
 #define MAX_DEFINEPARMS				128
@@ -228,7 +223,7 @@ define_t *idParser::CopyDefine( define_t *define ) {
 	define_t *newdefine;
 	idToken *token, *newtoken, *lasttoken;
 
-	newdefine = (define_t *) malloc(sizeof(define_t) + strlen(define->name) + 1);
+	newdefine = (define_t *) Mem_Alloc(sizeof(define_t) + strlen(define->name) + 1);
 	//copy the define name
 	newdefine->name = (char *) newdefine + sizeof(define_t);
 	strcpy(newdefine->name, define->name);
@@ -278,7 +273,7 @@ void idParser::FreeDefine( define_t *define ) {
 		delete t;
 	}
 	//free the define
-	free( define );
+	Mem_Free( define );
 }
 
 /*
@@ -330,7 +325,7 @@ idParser::PushIndent
 void idParser::PushIndent( int type, int skip ) {
 	indent_t *indent;
 
-	indent = (indent_t *) malloc(sizeof(indent_t));
+	indent = (indent_t *) Mem_Alloc(sizeof(indent_t));
 	indent->type = type;
 	indent->script = idParser::scriptstack;
 	indent->skip = (skip != 0);
@@ -362,7 +357,7 @@ void idParser::PopIndent( int *type, int *skip ) {
 	*skip = indent->skip;
 	idParser::indentstack = idParser::indentstack->next;
 	idParser::skip -= indent->skip;
-	free( indent );
+	Mem_Free( indent );
 }
 
 /*
@@ -615,7 +610,7 @@ void idParser::AddBuiltinDefines( void ) {
 	};
 
 	for (i = 0; builtin[i].string; i++) {
-		define = (define_t *) malloc(sizeof(define_t) + strlen(builtin[i].string) + 1);
+		define = (define_t *) Mem_Alloc(sizeof(define_t) + strlen(builtin[i].string) + 1);
 		define->name = (char *) define + sizeof(define_t);
 		strcpy(define->name, builtin[i].string);
 		define->flags = DEFINE_FIXED;
@@ -683,6 +678,7 @@ int idParser::ExpandBuiltinDefine( idToken *deftoken, define_t *define, idToken 
 			break;
 		}
 		case BUILTIN_DATE: {
+			idParser::Warning( "BUILTIN_DATE not supported\n" );
 			//t = time(NULL);
 			//curtime = ctime(&t);
 			//(*token) = "\"";
@@ -691,7 +687,7 @@ int idParser::ExpandBuiltinDefine( idToken *deftoken, define_t *define, idToken 
 			//token->Append( curtime+20 );
 			//token[10] = NULL;
 			//token->Append( "\"" );
-			//free(curtime);
+			//Mem_Free(curtime);
 			//token->type = TT_STRING;
 			//token->subtype = token->Length();
 			//token->line = deftoken->line;
@@ -702,13 +698,14 @@ int idParser::ExpandBuiltinDefine( idToken *deftoken, define_t *define, idToken 
 			break;
 		}
 		case BUILTIN_TIME: {
+			idParser::Warning( "BUILTIN_TIME not supported\n" );
 			//t = time(NULL);
 			//curtime = ctime(&t);
 			//(*token) = "\"";
 			//token->Append( curtime+11 );
 			//token[8] = NULL;
 			//token->Append( "\"" );
-			//free(curtime);
+			//Mem_Free(curtime);
 			//token->type = TT_STRING;
 			//token->subtype = token->Length();
 			//token->line = deftoken->line;
@@ -2612,7 +2609,6 @@ The next token should be an open brace.
 Parses until a matching close brace is found.
 Maintains the exact formating of the braced section
 
-  FIXME: what about precompilation ?
 =================
 */
 const char *idParser::ParseBracedSectionExact( idStr &out, int tabs ) {
@@ -3080,7 +3076,7 @@ void idParser::FreeSource( bool keepDefines ) {
 	while( indentstack ) {
 		indent = indentstack;
 		indentstack = indentstack->next;
-		free( indent );
+		Mem_Free( indent );
 	}
 	if ( !keepDefines ) {
 		// free hash table
@@ -3094,7 +3090,7 @@ void idParser::FreeSource( bool keepDefines ) {
 				}
 			}
 			defines = NULL;
-			free( idParser::definehash );
+			Mem_Free( idParser::definehash );
 			definehash = NULL;
 		}
 	}

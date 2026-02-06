@@ -26,13 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include <cstdarg>
-#include <cstdio>
-#include <cstdlib>
-
-#include "Platform.h"
+#include "precompiled.h"
+#pragma hdrstop
 #include "Lexer.h"
-#include "FileSystem.h"
 
 #define PUNCTABLE
 
@@ -138,14 +134,14 @@ void idLexer::CreatePunctuationTable( const punctuation_t *punctuations ) {
 	}
 	else {
 		if ( !idLexer::punctuationtable || idLexer::punctuationtable == default_punctuationtable ) {
-			idLexer::punctuationtable = (int *) malloc(256 * sizeof(int));
+			idLexer::punctuationtable = (int *) Mem_Alloc(256 * sizeof(int));
 		}
 		if ( idLexer::nextpunctuation && idLexer::nextpunctuation != default_nextpunctuation ) {
-			free( idLexer::nextpunctuation );
+			Mem_Free( idLexer::nextpunctuation );
 		}
 		for (i = 0; punctuations[i].p; i++) {
 		}
-		idLexer::nextpunctuation = (int *) malloc(i * sizeof(int));
+		idLexer::nextpunctuation = (int *) Mem_Alloc(i * sizeof(int));
 	}
 	memset(idLexer::punctuationtable, 0xFF, 256 * sizeof(int));
 	memset(idLexer::nextpunctuation, 0xFF, i * sizeof(int));
@@ -1690,16 +1686,16 @@ idLexer::FreeSource
 void idLexer::FreeSource( void ) {
 #ifdef PUNCTABLE
 	if ( idLexer::punctuationtable && idLexer::punctuationtable != default_punctuationtable ) {
-		free( (void *) idLexer::punctuationtable );
+		Mem_Free( (void *) idLexer::punctuationtable );
 		idLexer::punctuationtable = NULL;
 	}
 	if ( idLexer::nextpunctuation && idLexer::nextpunctuation != default_nextpunctuation ) {
-		free( (void *) idLexer::nextpunctuation );
+		Mem_Free( (void *) idLexer::nextpunctuation );
 		idLexer::nextpunctuation = NULL;
 	}
 #endif //PUNCTABLE
 	if ( idLexer::allocated ) {
-		free( (void *) idLexer::buffer );
+		Mem_Free( (void *) idLexer::buffer );
 		idLexer::buffer = NULL;
 		idLexer::allocated = false;
 	}
