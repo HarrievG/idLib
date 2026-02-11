@@ -39,8 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "CollisionModel_local.h"
-#include "Math.h"
-#include "math/Math.h"
+#include "math.h"
 /*
 ===============================================================================
 

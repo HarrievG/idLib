@@ -27,7 +27,12 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
+
+#include "precompiled.h"
+#pragma hdrstop
+
 #include "bv/Bounds.h"
+
 
 idBounds bounds_zero( vec3_zero, vec3_zero );
 

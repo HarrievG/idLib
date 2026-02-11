@@ -28,10 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWAP_H__
 #define __SWAP_H__
 
-#include "Math.h"
-#include "Math/Vector.h"
-#include "Math/VectorI.h"
-#include "Math/Matrix.h"
+#include "math/Math.h"
+#include "math/Vector.h"
+#include "math/VectorI.h"
+#include "math/Matrix.h"
 #include "bv/Bounds.h"
 
 
