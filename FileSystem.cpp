@@ -47,6 +47,9 @@ idCVar fs_debug( "fs_debug", "0", CVAR_SYSTEM | CVAR_INTEGER, "", 0, 2 );
 #define TAG_IDFILE 0
 #endif
 
+#define PATHSEPARATOR_STR				"\\"
+#define PATHSEPARATOR_CHAR				'\\'
+
 struct searchpath_t
 {
 	idStr	path;		// c:\doom
@@ -132,7 +135,16 @@ bool idFileSystemLocal::IsSoundSample( const idStr& resName ) const { return fal
 void idFileSystemLocal::FreeResourceBuffer() {}
 void idFileSystemLocal::FindDLL( const char* basename, char dllPath[ MAX_OSPATH ] ) {}
 void idFileSystemLocal::CopyFile( const char* fromOSPath, const char* toOSPath ) {
-    SDL_CopyFile( fromOSPath, toOSPath );
+	idStr newPath;
+	idStr fullPath(toOSPath);
+	fullPath.ExtractFilePath( newPath );
+	if (!SDL_GetPathInfo(newPath,NULL))
+		if ( !SDL_CreateDirectory(newPath) )
+			idLib::Warning( "Failed to copy file from %s to %s: %s", fromOSPath, toOSPath, SDL_GetError( ) );
+
+	if (!SDL_CopyFile( fromOSPath, toOSPath ))
+		if ( fs_debug.GetInteger( ) > 0 )
+			idLib::Warning( "Failed to copy file from %s to %s: %s", fromOSPath, toOSPath, SDL_GetError( ) );
 }
 findFile_t idFileSystemLocal::FindFile( const char* path ) {
     idFile* f = OpenFileRead( path );
@@ -380,7 +392,7 @@ void idFileSystemLocal::CloseFile( idFile* f ) {
 }
 
 int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIME_T* timestamp ) {
-    idFile* f = OpenFileRead( relativePath, false );
+    idFile* f = OpenFileRead( relativePath, fs_copyfiles.GetBool() );
     if ( !f ) return -1;
 
     int len = f->Length();
@@ -478,8 +490,23 @@ idFile* idFileSystemLocal::OpenFileReadMemory( const char* relativePath, bool al
 idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int searchFlags, bool allowCopyFiles, const char* gamedir ) {
     for( int i = 0; i < searchPaths.Num(); i++ ) {
         if ( gamedir && idStr::Icmp( gamedir, searchPaths[i].gamedir ) != 0 ) continue;
+		idStr path = BuildOSPath( searchPaths[i].path, searchPaths[i].gamedir, relativePath );
 
-        idStr path = BuildOSPath( searchPaths[i].path, searchPaths[i].gamedir, relativePath );
+		// if fs_copyfiles is set
+		if ( allowCopyFiles ) {
+			idStr copypath;
+			idStr name;
+			copypath = BuildOSPath( fs_savepath.GetString( ), searchPaths[i].gamedir, relativePath );
+			path.ExtractFileName( name );
+			copypath.StripFilename( );
+			copypath += PATHSEPARATOR_STR;
+			copypath += name;
+
+			if ( fs_copyfiles.GetBool( ) ) {
+				CopyFile( path, copypath );
+			}
+		}
+
         idFile* f = OpenExplicitFileRead( path );
         if ( f ) return f;
     }
