@@ -460,8 +460,8 @@ void idCmdSystemLocal::Shutdown()
 	for( cmd = commands; cmd; cmd = commands )
 	{
 		commands = commands->next;
-		free( cmd->name );
-		free( cmd->description );
+		Mem_Free( cmd->name );
+		Mem_Free( cmd->description );
 		delete cmd;
 	}
 

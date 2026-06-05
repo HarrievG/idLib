@@ -451,7 +451,7 @@ inline idStr::idStr( const idStr &text ) {
 	Init();
 	l = text.Length();
 	EnsureAlloced( l + 1 );
-	strcpy_s( data, alloced, text.data );
+	strncpy( data, text.data, alloced );
 	len = l;
 }
 
@@ -491,7 +491,7 @@ inline idStr::idStr( const char *text ) {
 	if ( text ) {
 		l = strlen( text );
 		EnsureAlloced( l + 1 );
-		strcpy_s( data, alloced, text );
+		strncpy( data, text, alloced );
 		len = l;
 	}
 }
@@ -548,7 +548,7 @@ inline idStr::idStr( const int i ) {
 	Init();
 	l = sprintf( text, "%d", i );
 	EnsureAlloced( l + 1 );
-	strcpy_s( data, alloced, text );
+	strncpy( data, text, alloced );
 	len = l;
 }
 
@@ -559,7 +559,7 @@ inline idStr::idStr( const unsigned u ) {
 	Init();
 	l = sprintf( text, "%u", u );
 	EnsureAlloced( l + 1 );
-	strcpy_s( data, alloced, text );
+	strncpy( data, text, alloced );
 	len = l;
 }
 
@@ -572,7 +572,7 @@ inline idStr::idStr( const float f ) {
 	while( l > 0 && text[l-1] == '0' ) text[--l] = '\0';
 	while( l > 0 && text[l-1] == '.' ) text[--l] = '\0';
 	EnsureAlloced( l + 1 );
-	strcpy_s( data, alloced, text );
+	strncpy( data, text, alloced );
 	len = l;
 }
 
