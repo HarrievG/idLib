@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __SORT_H__
 
 #include "../Platform.h"
+#include <utility>
 
 /*
 ================================================================================================
@@ -95,10 +96,10 @@ SwapValues
 ========================
 */
 template< typename type >
-inline void SwapValues( type & a, type & b ) {
-	type c = a;
-	a = b;
-	b = c;
+constexpr inline void SwapValues( type & a, type & b ) {
+	type c = std::move(a);
+	a = std::move(b);
+	b = std::move(c);
 }
 
 /*
@@ -205,7 +206,7 @@ be used to sort scalars from small to large.
 template< typename type >
 class idSort_QuickDefault : public idSort_Quick< type, idSort_QuickDefault< type > > {
 public:
-	int Compare( const type & a, const type & b ) const { return a - b; }
+	constexpr inline int Compare( const type & a, const type & b ) const { return a - b; }
 };
 
 /*
@@ -217,7 +218,7 @@ conversion for every comparison.
 template<>
 class idSort_QuickDefault< float > : public idSort_Quick< float, idSort_QuickDefault< float > > {
 public:
-	int Compare( const float & a, const float & b ) const {
+	constexpr inline int Compare( const float & a, const float & b ) const {
 		if ( a < b ) {
 			return -1;
 		}
@@ -297,7 +298,7 @@ be used to sort scalars from small to large.
 template< typename type >
 class idSort_HeapDefault : public idSort_Heap< type, idSort_HeapDefault< type > > {
 public:
-	int Compare( const type & a, const type & b ) const { return a - b; }
+	constexpr inline int Compare( const type & a, const type & b ) const { return a - b; }
 };
 
 /*
@@ -334,7 +335,122 @@ be used to sort scalars from small to large.
 template< typename type >
 class idSort_InsertionDefault : public idSort_Insertion< type, idSort_InsertionDefault< type > > {
 public:
-	int Compare( const type & a, const type & b ) const { return a - b; }
+	constexpr inline int Compare( const type & a, const type & b ) const { return a - b; }
+};
+
+/*
+================================================
+idSort_Intro is a sort template class that implements the
+introsort algorithm (quicksort with heapsort fallback) on an array of objects.
+================================================
+*/
+template< typename type, typename _derived_ >
+class idSort_Intro : public idSort< type > {
+private:
+	void HeapSort( type * base, unsigned int num ) const {
+		for ( unsigned int i = num / 2; i > 0; i-- ) {
+			unsigned int parent = i - 1;
+			for ( unsigned int child = parent * 2 + 1; child < num; child = parent * 2 + 1 ) {
+				if ( child + 1 < num && static_cast< const _derived_ * >( this )->Compare( base[child + 1], base[child] ) > 0 ) {
+					child++;
+				}
+				if ( static_cast< const _derived_ * >( this )->Compare( base[child], base[parent] ) <= 0 ) {
+					break;
+				}
+				SwapValues( base[parent], base[child] );
+				parent = child;
+			}
+		}
+		for ( unsigned int i = num - 1; i > 0; i-- ) {
+			SwapValues( base[0], base[i] );
+			unsigned int parent = 0;
+			for ( unsigned int child = parent * 2 + 1; child < i; child = parent * 2 + 1 ) {
+				if ( child + 1 < i && static_cast< const _derived_ * >( this )->Compare( base[child + 1], base[child] ) > 0 ) {
+					child++;
+				}
+				if ( static_cast< const _derived_ * >( this )->Compare( base[child], base[parent] ) <= 0 ) {
+					break;
+				}
+				SwapValues( base[parent], base[child] );
+				parent = child;
+			}
+		}
+	}
+
+public:
+	virtual void Sort( type * base, unsigned int num ) const {
+		if ( num <= 1 ) {
+			return;
+		}
+
+		const long long MAX_LEVELS = 128;
+		long long lo[MAX_LEVELS], hi[MAX_LEVELS];
+		long long depth[MAX_LEVELS];
+
+		long long depthLimit = 0;
+		for (unsigned int n = num; n > 1; n >>= 1) {
+			depthLimit++;
+		}
+		depthLimit *= 2;
+
+		lo[0] = 0;
+		hi[0] = num - 1;
+		depth[0] = depthLimit;
+
+		for ( long long level = 0; level >= 0; ) {
+			long long i = lo[level];
+			long long j = hi[level];
+			long long currentDepth = depth[level];
+
+			if ( currentDepth == 0 ) {
+				HeapSort( base + i, (unsigned int)(j - i + 1) );
+				level--;
+				continue;
+			}
+
+			if ( ( j - i ) >= 4 && level < ( MAX_LEVELS - 2 ) ) {
+				long long pi = ( i + j ) / 2;
+				SwapValues( base[j], base[pi] );
+				type & pivot = base[j--];
+
+				do {
+					while( static_cast< const _derived_ * >( this )->Compare( base[i], pivot ) < 0 ) { if ( ++i >= j ) break; }
+					while( static_cast< const _derived_ * >( this )->Compare( base[j], pivot ) > 0 ) { if ( --j <= i ) break; }
+					if ( i >= j ) break;
+					SwapValues( base[i], base[j] );
+				} while( ++i < --j );
+
+				while ( static_cast< const _derived_ * >( this )->Compare( base[i], pivot ) <= 0 && i < hi[level] ) { i++; }
+				while ( static_cast< const _derived_ * >( this )->Compare( base[j], pivot ) >= 0 && lo[level] < j ) { j--; }
+
+				SwapValues( pivot, base[i] );
+
+				lo[level+1] = i;
+				hi[level+1] = hi[level];
+				depth[level+1] = currentDepth - 1;
+				hi[level] = j;
+				depth[level] = currentDepth - 1;
+				level++;
+			} else {
+				for( ; i < j; j-- ) {
+					long long m = i;
+					for ( long long k = i + 1; k <= j; k++ ) {
+						if ( static_cast< const _derived_ * >( this )->Compare( base[k], base[m] ) > 0 ) {
+							m = k;
+						}
+					}
+					SwapValues( base[m], base[j] );
+				}
+				level--;
+			}
+		}
+	}
+};
+
+template< typename type >
+class idSort_IntroDefault : public idSort_Intro< type, idSort_IntroDefault< type > > {
+public:
+	constexpr inline int Compare( const type & a, const type & b ) const { return a - b; }
 };
 
 #endif // !__SORT_H__

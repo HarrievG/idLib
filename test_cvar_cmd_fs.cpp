@@ -6,7 +6,13 @@
 #include "Str.h"
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include "containers/Sort.h"
 #include <iostream>
+#include <algorithm>
+#include <chrono>
+#include <random>
+#include <vector>
 #include "tools/compiler_public.h"
 
 // Mocking common if needed, but we used idLib::Printf/Warning/FatalError.
@@ -95,6 +101,111 @@ void TestIdStr() {
     idLib::Printf("idStr tests complete.\n");
 }
 
+void TestIdSort() {
+    idLib::Printf("\n--- idSort Testing ---\n");
+
+    const int SIZE = 10;
+    int data[SIZE] = { 5, 2, 9, 1, 5, 6, 3, 8, 4, 7 };
+    int expected[SIZE] = { 1, 2, 3, 4, 5, 5, 6, 7, 8, 9 };
+
+    int testData[SIZE];
+
+    // QuickSort
+    memcpy(testData, data, sizeof(data));
+    idSort_QuickDefault<int>().Sort(testData, SIZE);
+    for (int i = 0; i < SIZE; i++) CHECK(testData[i] == expected[i]);
+    idLib::Printf("QuickSort passed.\n");
+
+    // HeapSort
+    memcpy(testData, data, sizeof(data));
+    idSort_HeapDefault<int>().Sort(testData, SIZE);
+    for (int i = 0; i < SIZE; i++) CHECK(testData[i] == expected[i]);
+    idLib::Printf("HeapSort passed.\n");
+
+    // InsertionSort
+    memcpy(testData, data, sizeof(data));
+    idSort_InsertionDefault<int>().Sort(testData, SIZE);
+    for (int i = 0; i < SIZE; i++) CHECK(testData[i] == expected[i]);
+    idLib::Printf("InsertionSort passed.\n");
+
+    // IntroSort
+    memcpy(testData, data, sizeof(data));
+    idSort_IntroDefault<int>().Sort(testData, SIZE);
+    for (int i = 0; i < SIZE; i++) CHECK(testData[i] == expected[i]);
+    idLib::Printf("IntroSort passed.\n");
+
+    idLib::Printf("idSort tests complete.\n");
+}
+
+void TestIdSortPerformance() {
+    idLib::Printf("\n--- idSort Performance Testing ---\n");
+
+    const int SIZE = 100000;
+    std::vector<int> data(SIZE);
+    std::mt19937 rng(42);
+    for (int i = 0; i < SIZE; i++) {
+        data[i] = rng();
+    }
+
+    std::vector<int> testData(SIZE);
+
+    auto benchmarkStdSort = [&]() {
+        testData = data;
+        auto start = std::chrono::high_resolution_clock::now();
+        std::sort(testData.begin(), testData.end());
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> ms = end - start;
+        idLib::Printf("std::sort: %.2f ms\n", ms.count());
+    };
+
+    auto benchmarkQuickSort = [&]() {
+        testData = data;
+        auto start = std::chrono::high_resolution_clock::now();
+        idSort_QuickDefault<int>().Sort(testData.data(), SIZE);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> ms = end - start;
+        idLib::Printf("idSort_QuickDefault: %.2f ms\n", ms.count());
+    };
+
+    auto benchmarkHeapSort = [&]() {
+        testData = data;
+        auto start = std::chrono::high_resolution_clock::now();
+        idSort_HeapDefault<int>().Sort(testData.data(), SIZE);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> ms = end - start;
+        idLib::Printf("idSort_HeapDefault: %.2f ms\n", ms.count());
+    };
+
+    auto benchmarkIntroSort = [&]() {
+        testData = data;
+        auto start = std::chrono::high_resolution_clock::now();
+        idSort_IntroDefault<int>().Sort(testData.data(), SIZE);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> ms = end - start;
+        idLib::Printf("idSort_IntroDefault: %.2f ms\n", ms.count());
+    };
+
+    benchmarkStdSort();
+    benchmarkQuickSort();
+    benchmarkHeapSort();
+    benchmarkIntroSort();
+    
+    // InsertionSort is O(N^2), use a smaller size.
+    const int SMALL_SIZE = 10000;
+    std::vector<int> smallData(SMALL_SIZE);
+    for (int i = 0; i < SMALL_SIZE; i++) {
+        smallData[i] = rng();
+    }
+    std::vector<int> smallTestData = smallData;
+    auto start = std::chrono::high_resolution_clock::now();
+    idSort_InsertionDefault<int>().Sort(smallTestData.data(), SMALL_SIZE);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> ms = end - start;
+    idLib::Printf("idSort_InsertionDefault (10k elements): %.2f ms\n", ms.count());
+
+    idLib::Printf("idSort Performance tests complete.\n");
+}
+
 int main( int argc, char* argv[] ) {
     idLib::Printf("Initializing systems...\n");
 
@@ -149,6 +260,8 @@ int main( int argc, char* argv[] ) {
 
     // Run extended idStr tests
     TestIdStr();
+    TestIdSort();
+    TestIdSortPerformance();
 
 	idLib::Printf( "- CVARS: \n" );
 	int numCVars = cvarSystem->GetNumCVars( );
